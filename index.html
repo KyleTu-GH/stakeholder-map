@@ -47,7 +47,7 @@
       { color: '#EC4899', bg: '#FDF2F8', border: '#FCE7F3' }, // 5: 粉
     ];
 
-    // 四象限策略指引及多重用語變體
+    // 四象限策略指引及多重用語變體（完全移除「象限」字樣）
     const QUADRANT_STRATEGIES = {
       Q1: {
         name: '內部高籌碼 (關鍵主管/老闆)',
@@ -230,38 +230,12 @@
       return `${yy}'${mm}${dd}-${hh}${min}${ss}`;
     };
 
-    // 常用 SVG 圖標組件
     const AvatarIcon = ({ color, size = 64 }) => (
       <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="32" cy="32" r="32" fill={color} fillOpacity="0.1" />
         <circle cx="32" cy="24" r="12" stroke={color} strokeWidth="3" />
         <path d="M12 52C12 42.0589 20.9543 34 32 34C43.0457 34 52 42.0589 52 52" stroke={color} strokeWidth="3" strokeLinecap="round" />
       </svg>
-    );
-
-    const UserPlusIcon = () => (
-      <svg className="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-    );
-    const UsersIcon = () => (
-      <svg className="w-8 h-8 text-blue-600 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-    );
-    const FileTextIcon = () => (
-      <svg className="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-    );
-    const InfoIcon = () => (
-      <svg className="w-4 h-4 text-blue-600 inline-block mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    );
-    const EyeIcon = () => (
-      <svg className="w-4 h-4 inline-block mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-    );
-    const EyeOffIcon = () => (
-      <svg className="w-4 h-4 inline-block mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>
-    );
-    const UserCircleIcon = () => (
-      <svg className="w-5 h-5 text-blue-600 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    );
-    const CloseIcon = ({ size = 12 }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     );
 
     const App = () => {
@@ -278,6 +252,7 @@
       
       const [isDownloading, setIsDownloading] = useState(false);
       const [downloadError, setDownloadError] = useState('');
+      const [libsReady, setLibsReady] = useState(false);
       
       const [mapWidth, setMapWidth] = useState(800);
       const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
@@ -295,7 +270,34 @@
       const meAvatarSizeClass = isMobileUI ? "w-16 h-16 text-xl" : "w-24 h-24 text-3xl";
       const meAvatarBorderClass = isMobileUI ? "border-[4px] ring-4" : "border-[6px] ring-8";
 
-      // 監聽尺寸與環境
+      useEffect(() => {
+        const handleContextMenu = (e) => e.preventDefault();
+        const handleKeyDown = (e) => {
+          if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83)) {
+            e.preventDefault();
+            return false;
+          }
+        };
+        document.addEventListener('contextmenu', handleContextMenu);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+          document.removeEventListener('contextmenu', handleContextMenu);
+          document.removeEventListener('keydown', handleKeyDown);
+        };
+      }, []);
+
+      useEffect(() => {
+        const handleBeforeUnload = (e) => {
+          if (stakeholders.length > 0 || meData.name || meData.title) {
+            e.preventDefault();
+            e.returnValue = '確定要離開嗎？';
+            return e.returnValue;
+          }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+      }, [stakeholders, meData]);
+
       useEffect(() => {
         const ua = navigator.userAgent || navigator.vendor || window.opera;
         if (ua.indexOf("Line") > -1 || ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1 || ua.indexOf("Instagram") > -1 || ua.indexOf("MicroMessenger") > -1) {
@@ -307,6 +309,25 @@
         });
         observer.observe(mapRef.current);
         return () => observer.disconnect();
+      }, []);
+
+      useEffect(() => {
+        const loadScript = (url, checkGlobal) => {
+          return new Promise((resolve) => {
+            if (window[checkGlobal]) { resolve(true); return; }
+            const script = document.createElement('script');
+            script.src = url; script.async = true;
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.head.appendChild(script);
+          });
+        };
+        const initLibs = async () => {
+          const h2c = await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas');
+          const jspdf = await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf');
+          if (h2c && jspdf) setLibsReady(true); else setDownloadError('PDF 組件載入中或連線異常。');
+        };
+        initLibs();
       }, []);
 
       const getQuadrantKey = (x, y) => {
@@ -512,7 +533,7 @@
         container.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", sans-serif';
         container.innerHTML = htmlContent;
         document.body.appendChild(container);
-        const canvas = await window.html2canvas(container, { scale: 2.0, backgroundColor: '#ffffff', logging: false });
+        const canvas = await window.html2canvas(container, { scale: 2.5, backgroundColor: '#ffffff', logging: false });
         document.body.removeChild(container);
         return canvas;
       };
@@ -529,13 +550,12 @@
           const margin = 10;
           const contentWidth = pageWidth - margin * 2;
 
-          // 1. 產生報告首頁頂部標題 Canvas（全圖片化徹底防範中文亂碼）
           const headerHtml = `
             <div style="padding: 6px 0 10px 0; border-bottom: 2px solid #e2e8f0;">
-              <div style="font-size: 22px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">
+              <div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">
                 利害關係人・相對關係圖與溝通行動對策報告
               </div>
-              <div style="font-size: 12px; font-weight: 600; color: #64748b;">
+              <div style="font-size: 13px; font-weight: 600; color: #64748b;">
                 分析主體：${meData.name || '未填寫'} ${meData.title ? `(${meData.title})` : ''} ｜ 產生時間：${getFormattedTimestamp()}
               </div>
             </div>
@@ -544,9 +564,8 @@
           const reportHeaderHeightInMm = (reportHeaderCanvas.height * contentWidth) / reportHeaderCanvas.width;
           const reportHeaderImgData = reportHeaderCanvas.toDataURL('image/jpeg', 0.95);
 
-          // 2. 擷取關係圖
           const mapCanvas = await window.html2canvas(mapRef.current, {
-            scale: isMobileUI ? 1.5 : 2,
+            scale: 2,
             useCORS: true,
             backgroundColor: '#ffffff',
             logging: false,
@@ -564,7 +583,6 @@
           pdf.addImage(mapImgData, 'JPEG', margin, currentY, contentWidth, mapHeightInMm);
           currentY += mapHeightInMm + 8;
 
-          // 3. 處理溝通對策總表（以列為單位防止橫向截斷）
           if (placedStakeholders.length > 0 && tableContainerRef.current) {
             const tableContainer = tableContainerRef.current;
             const tableHeaderEl = tableContainer.querySelector('thead');
@@ -572,7 +590,7 @@
 
             const tableTitleHtml = `
               <div style="padding: 6px 0 6px 0;">
-                <div style="font-size: 17px; font-weight: 900; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                <div style="font-size: 18px; font-weight: 900; color: #1e293b; display: flex; align-items: center; gap: 8px;">
                   <span style="color: #2563eb;">■</span> 利害關係人・溝通行動對策總表
                 </div>
               </div>
@@ -586,7 +604,7 @@
             let theadImgData = null;
             if (tableHeaderEl) {
               theadCanvas = await window.html2canvas(tableHeaderEl, {
-                scale: isMobileUI ? 1.5 : 2,
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#f8fafc',
                 logging: false
@@ -597,7 +615,7 @@
 
             let firstRowHeightInMm = 25;
             if (rows.length > 0) {
-              const testRowCanvas = await window.html2canvas(rows[0], { scale: 1.2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+              const testRowCanvas = await window.html2canvas(rows[0], { scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false });
               firstRowHeightInMm = (testRowCanvas.height * contentWidth) / testRowCanvas.width;
             }
 
@@ -617,7 +635,7 @@
             for (let i = 0; i < rows.length; i++) {
               const rowEl = rows[i];
               const rowCanvas = await window.html2canvas(rowEl, {
-                scale: isMobileUI ? 1.5 : 2,
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
                 logging: false
@@ -644,22 +662,7 @@
           }
 
           const timeStampStr = getFormattedTimestamp();
-          const fileName = `利害關係人溝通行動對策報告_${timeStampStr}.pdf`;
-
-          // 手機與桌機相容下載處置
-          if (isMobileUI) {
-            const blob = pdf.output('blob');
-            const blobUrl = URL.createObjectURL(blob);
-            const downloadLink = document.createElement('a');
-            downloadLink.href = blobUrl;
-            downloadLink.download = fileName;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
-          } else {
-            pdf.save(fileName);
-          }
+          pdf.save(`利害關係人溝通行動對策報告_${timeStampStr}.pdf`);
         } catch (e) {
           console.error(e);
           setDownloadError('PDF 匯出失敗，請使用 Chrome 或 Safari 開啟。');
@@ -695,12 +698,13 @@
       });
 
       return (
-        <div className="p-4 md:p-8 select-none max-w-7xl mx-auto">
+        <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans text-slate-900 select-none">
           {isInAppBrowser && (
-            <div className="fixed inset-0 z-[500] bg-blue-900/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white">
+            <div className="fixed inset-0 z-[500] bg-blue-900/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white animate-in fade-in duration-500">
               <div className="bg-white/10 p-6 rounded-3xl border border-white/20 mb-8 max-w-sm">
+                <ExternalLink size={64} className="mx-auto mb-6 text-blue-300" />
                 <h2 className="text-2xl font-bold mb-4">請用外部瀏覽器開啟</h2>
-                <p className="text-blue-100 leading-relaxed text-sm">偵測到內建瀏覽器環境，這會導致拖曳與檔案下載受限。</p>
+                <p className="text-blue-100 leading-relaxed text-sm">偵測到內建瀏覽器環境，這會導致拖曳與下載功能受限。</p>
                 <div className="mt-8 space-y-4">
                   <div className="flex items-center gap-3 text-left bg-white/20 p-4 rounded-2xl"><span className="bg-blue-500 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span><span className="text-sm">點擊畫面上或下方的「...」</span></div>
                   <div className="flex items-center gap-3 text-left bg-white/20 p-4 rounded-2xl"><span className="bg-blue-500 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span><span className="text-sm">選擇「在瀏覽器開啟」</span></div>
@@ -710,296 +714,268 @@
             </div>
           )}
 
-          <header className="mb-6 border-b border-slate-200 pb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <h1 className="text-3xl font-bold text-slate-800 flex items-center">
-                  <UsersIcon /> 利害關係人-相對關係圖
-                </h1>
-                <span className="text-[10px] text-slate-400 font-medium tracking-tight uppercase">26'0905-1946</span>
-              </div>
-              
-              <div className="mt-4 flex flex-wrap gap-3 items-center">
-                <button onClick={() => setIsInstructionsOpen(!isInstructionsOpen)} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 border border-slate-200 rounded-xl shadow-sm transition-all text-sm font-bold text-slate-700">
-                  <InfoIcon /><span>使用說明</span>
-                  <span className="text-xs text-slate-400 ml-1">{isInstructionsOpen ? '▲' : '▼'}</span>
-                </button>
+          <div className="max-w-7xl mx-auto">
+            <header className="mb-6 border-b border-slate-200 pb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2"><Users className="text-blue-600" /> 利害關係人-相對關係圖</h1>
+                  <span className="text-[10px] text-slate-400 font-medium tracking-tight uppercase">26'0905-1815</span>
+                </div>
                 
-                <button onClick={() => setShowWatermark(!showWatermark)} className={`flex items-center gap-2 px-4 py-2 border rounded-xl shadow-sm transition-all text-sm font-bold ${showWatermark ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
-                  {showWatermark ? <EyeIcon /> : <EyeOffIcon />}
-                  <span>策略提示：{showWatermark ? '顯示中' : '隱藏中'}</span>
-                </button>
-              </div>
-
-              {isInstructionsOpen && (
-                <div className="mt-4 bg-white/90 backdrop-blur-sm p-5 rounded-2xl border border-blue-100 shadow-xl max-w-2xl">
-                  <div className="mb-3 flex items-center gap-2 text-blue-700 bg-blue-50 p-3 rounded-xl"><span className="font-bold text-sm">💡 使用指引與建議</span></div>
-                  <ul className="text-xs text-slate-600 space-y-2 font-medium leading-relaxed">
-                    <li className="flex items-start gap-2"><span className="bg-blue-100 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold">1</span><span>設定「我」的資訊，作為分析的中心基準。</span></li>
-                    <li className="flex items-start gap-2"><span className="bg-blue-100 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold">2</span><span>新增關係人（至多 6 位），並從下方拖曳至相對圖中。</span></li>
-                    <li className="flex items-start gap-2"><span className="bg-blue-100 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold">3</span><span>拖入象限後，系統將依位置自動生成專屬溝通對策總表。</span></li>
-                    <li className="flex items-start gap-2"><span className="bg-blue-100 text-blue-600 w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold">4</span><span>在桌機上雙擊已放置的頭像可隨時修改資訊。</span></li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="relative pt-2">
-              <button 
-                onClick={downloadPdfReport} 
-                disabled={isDownloading || placedStakeholders.length === 0} 
-                className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-md transition-all ${(isDownloading || placedStakeholders.length === 0) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'}`}
-              >
-                <FileTextIcon />
-                <span>{isDownloading ? '報告產出中...' : '匯出 PDF 報告 (含對策表)'}</span>
-              </button>
-              {downloadError && <div className="absolute top-full right-0 mt-2 text-xs text-red-500 font-bold bg-white p-2 rounded-lg border border-red-200 shadow-sm z-[200]">{downloadError}</div>}
-            </div>
-          </header>
-
-          {}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-            {/* 左側面板 */}
-            <div className="lg:col-span-1 space-y-4">
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 ring-1 ring-blue-50">
-                <h2 className="text-base font-bold mb-3 text-blue-800 flex items-center"><UserCircleIcon /><span>「我」的資訊</span></h2>
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="我的姓名 *" />
-                    <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-medium" placeholder="我的職稱" />
-                  </div>
-                  <textarea name="remarks" value={meData.remarks} onChange={handleMeInputChange} rows="1" className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="分析目標 / 備註" />
-                </div>
-              </div>
-
-              <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                <h2 className="text-base font-bold mb-3 text-slate-700 flex flex-col">
-                  <span>1. 新增利害關係人</span>
-                  <span className="text-[10px] font-normal text-slate-400 mt-0.5">（最少 1 位，最多 6 位）</span>
-                </h2>
-                <form onSubmit={addStakeholder} className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-3 py-2 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500`} placeholder="姓名 *" required />
-                    <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" placeholder="職稱" />
-                  </div>
-                  <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows="1" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="備註說明" />
-                  {errorMsg && <div className="text-red-500 text-[10px] font-bold px-1">{errorMsg}</div>}
-                  <button type="submit" disabled={stakeholders.length >= MAX_STAKEHOLDERS || !meData.name.trim()} className="w-full py-2 bg-slate-800 text-white rounded-lg font-bold text-xs shadow-md hover:bg-black disabled:bg-slate-100 disabled:text-slate-400 flex items-center justify-center gap-1 transition-all">
-                    {!meData.name.trim() ? "請先填寫您的姓名" : <><UserPlusIcon /> 新增</>}
+                <div className="mt-4 flex flex-wrap gap-3 items-center">
+                  <button onClick={() => setIsInstructionsOpen(!isInstructionsOpen)} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 border border-slate-200 rounded-xl shadow-sm transition-all text-sm font-bold text-slate-700">
+                    <Info size={16} className="text-blue-600" /><span>使用說明</span>
+                    {isInstructionsOpen ? <ChevronUp size={16} className="text-slate-400 ml-auto" /> : <ChevronDown size={16} className="text-slate-400 ml-auto" />}
                   </button>
-                </form>
-              </div>
-
-              {/* 待分配圖像 */}
-              <div onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedId) { setStakeholders(prev => prev.map(s => s.id === draggedId ? { ...s, x: null, y: null, isPlaced: false } : s)); setDraggedId(null); }}} className="bg-white/50 p-3 rounded-2xl border-2 border-dashed border-slate-300 min-h-[90px]">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest flex items-center gap-2">2. 待分配圖像</h3>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {stakeholders.filter(s => !s.isPlaced).map(s => (
-                    <div key={s.id} draggable="true" onDragStart={(e) => handleDragStartFromList(e, s.id)} onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex flex-col items-center group cursor-grab active:cursor-grabbing transition-transform active:scale-95 touch-none">
-                      <div className="relative p-0.5 bg-white rounded-full shadow-sm border border-slate-200 group-hover:border-blue-300">
-                        <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#cbd5e1'} size={40} />
-                        <button onClick={() => removeStakeholder(s.id)} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 shadow-sm"><CloseIcon size={8} /></button>
-                      </div>
-                      <span className="text-[9px] font-bold mt-1 text-slate-600">{renderDisplayName(s.name)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {}
-            <div className="lg:col-span-3 space-y-6" ref={printContainerRef}>
-              <div ref={mapRef} onDragOver={(e) => e.preventDefault()} onDrop={handleDropOnMap} className="stakeholder-map-container relative bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden aspect-[4/3] min-h-[580px] w-full flex items-center justify-center">
-                
-                {/* 四象限底色區域 */}
-                <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none z-0">
-                   <div className="flex flex-col items-center justify-center border-r border-b border-slate-100/50 bg-blue-50/5">
-                     {showWatermark && <><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">目標對齊</span><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">主動回報</span></>}
-                   </div>
-                   <div className="flex flex-col items-center justify-center border-b border-slate-100/50 bg-amber-50/5">
-                     {showWatermark && <><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">價值共創</span><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">風險管理</span></>}
-                   </div>
-                   <div className="flex flex-col items-center justify-center border-r border-slate-100/50 bg-emerald-50/5">
-                     {showWatermark && <><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">賦能支持</span><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">情感維繫</span></>}
-                   </div>
-                   <div className="flex flex-col items-center justify-center bg-slate-50/5">
-                     {showWatermark && <><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">穩定預期</span><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">資訊同步</span></>}
-                   </div>
-                </div>
-
-                {/* 三層同心圓 - 50%, 75%, 90% */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                  <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/30"></div>
-                  <div className="absolute w-[75%] aspect-square rounded-full bg-red-200/40"></div>
-                  <div className="absolute w-[50%] aspect-square rounded-full bg-red-300/50"></div>
-                </div>
-
-                <div className="absolute top-1/2 left-0 right-0 h-px bg-slate-400/40 z-10"></div>
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-400/40 z-10"></div>
-
-                <div className="absolute top-0 left-0 right-0 flex justify-center pt-0 pointer-events-none text-center font-bold text-blue-700 text-lg z-20"><div className="bg-white border-x border-b border-blue-100 px-10 py-2 rounded-b-2xl shadow-sm">資源｜籌碼 較多</div></div>
-                <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-0 pointer-events-none text-center font-bold text-emerald-700 text-lg z-20"><div className="bg-white border-x border-t border-emerald-100 px-10 py-2 rounded-t-2xl shadow-sm">資源｜籌碼 較少</div></div>
-                <div className="absolute left-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-r border-slate-200 p-4 rounded-r-2xl shadow-sm"><VerticalText text="內部關係人" /></div></div>
-                <div className="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-l border-slate-200 p-4 rounded-l-2xl shadow-sm"><VerticalText text="外部關係人" /></div></div>
-
-                {/* 中心點「我」 */}
-                <div className="absolute inset-0 flex items-center justify-center z-[100] me-center-overlay pointer-events-none">
-                  <div className="relative flex flex-col items-center">
-                    <div className={`${meAvatarSizeClass} bg-blue-600 rounded-full ${meAvatarBorderClass} border-white shadow-2xl flex items-center justify-center text-white font-black ring-blue-50/40 transition-all`}>我</div>
-                  </div>
-                </div>
-
-                {/* 關係人圖標渲染 */}
-                {placedStakeholders.map(s => {
-                  const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
-                  const isHovered = hoveredId === s.id;
-                  const isThisLiveDragging = isLiveDragging === s.id;
-                  const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
-
-                  return (
-                    <div key={s.id} onMouseEnter={() => handleMouseEnter(s.id)} onMouseLeave={handleMouseLeave} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)', zIndex: isThisLiveDragging ? 300 : (isHovered ? 200 : 50) }} className="absolute group flex flex-col items-center pointer-events-auto transition-shadow">
-                      <div 
-                        onMouseDown={(e) => handleLiveDragStart(e, s.id)}
-                        onDoubleClick={() => { setErrorMsg(''); setEditingStakeholder(s); }}
-                        onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
-                        className={`relative p-1 bg-white rounded-full shadow-lg border-2 border-transparent group-hover:border-blue-500 z-10 transition-all touch-none ${isThisLiveDragging ? 'cursor-grabbing scale-110 shadow-2xl border-blue-500' : 'cursor-grab hover:scale-105'}`}
-                      >
-                        <AvatarIcon color={theme.color} size={stakeholderAvatarSize} />
-                        <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); removeStakeholder(s.id); }} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 shadow-md transition-colors"><CloseIcon size={10} /></button>
-                      </div>
-                      
-                      <div className={`${isMobileUI ? 'mt-[-4px]' : 'mt-[-8px]'} text-center pointer-events-none z-20 flex flex-col items-center gap-1`}>
-                        <div className={`bg-white/95 ${isMobileUI ? 'px-3 py-1 min-w-[80px]' : 'px-4 py-1.5 min-w-[100px]'} rounded-full shadow-md border border-slate-100 flex flex-col items-center transition-all`}>
-                          <div className={`font-extrabold text-slate-900 ${isMobileUI ? 'text-[11px]' : 'text-xs'} whitespace-nowrap`}>{renderDisplayName(s.name)}</div>
-                          <div className={`${isMobileUI ? 'text-[9px]' : 'text-[10px]'} text-slate-500 font-bold leading-tight mt-0.5 text-center`}>{renderDisplayTitle(s.title)}</div>
-                        </div>
-                        {qStrategy && (
-                          <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold shadow-xs whitespace-nowrap ${qStrategy.tagColor}`}>
-                            {qStrategy.tag}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {}
-              {/* 溝通行動對策總表 */}
-              {placedStakeholders.length > 0 && (
-                <div ref={tableContainerRef} className="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 flex-wrap gap-2">
-                    <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                      <span className="text-blue-600">■</span>
-                      <span>利害關係人・溝通行動對策總表</span>
-                    </h3>
-                    <span className="text-xs font-bold text-slate-400">分析主體：{meData.name || '未填寫'} {meData.title ? `(${meData.title})` : ''}</span>
-                  </div>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                          <th className="py-3 px-3 font-bold">對象與職稱</th>
-                          <th className="py-3 px-3 font-bold">位置與向度說明</th>
-                          <th className="py-3 px-3 font-bold">核心態度與策略方針</th>
-                          <th className="py-3 px-3 font-bold">建議頻率與互動管道</th>
-                          <th className="py-3 px-3 font-bold">溝通起手式 / 備註指引</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {placedStakeholders.map(s => {
-                          const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
-                          const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
-                          const posInfo = getDetailedPositionInfo(s.x, s.y);
+                  <button onClick={() => setShowWatermark(!showWatermark)} className={`flex items-center gap-2 px-4 py-2 border rounded-xl shadow-sm transition-all text-sm font-bold ${showWatermark ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                    {showWatermark ? <Eye size={16} /> : <EyeOff size={16} />}
+                    <span>策略提示：{showWatermark ? '顯示中' : '隱藏中'}</span>
+                  </button>
+                </div>
+              </div>
 
-                          return (
-                            <tr key={s.id} className="hover:bg-blue-50/30 transition-colors">
-                              <td className="py-3.5 px-3 align-top">
-                                <div className="flex items-center gap-2">
-                                  <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: theme.color }}></span>
-                                  <div>
-                                    <span className="font-extrabold text-slate-800 text-sm block">{s.name}</span>
-                                    <span className="text-slate-400 text-[10px]">{s.title || '無職稱'}</span>
-                                  </div>
-                                </div>
-                              </td>
+              <div className="relative pt-2">
+                <button 
+                  onClick={downloadPdfReport} 
+                  disabled={isDownloading || !libsReady || placedStakeholders.length === 0} 
+                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-md transition-all ${(isDownloading || !libsReady || placedStakeholders.length === 0) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'}`}
+                >
+                  {isDownloading ? <Loader2 className="animate-spin" size={18} /> : !libsReady ? <Loader2 className="animate-spin" size={18} /> : <FileText size={18} />}
+                  <span>匯出 PDF 報告 (含對策表)</span>
+                </button>
+                {downloadError && <div className="absolute top-full right-0 mt-2 text-xs text-red-500 font-bold bg-white p-2 rounded-lg border border-red-200 shadow-sm z-[200]">{downloadError}</div>}
+              </div>
+            </header>
 
-                              <td className="py-3.5 px-3 align-top">
-                                <div className="space-y-1.5">
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className={`inline-block px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${qStrategy?.tagColor}`}>
-                                      {posInfo?.quadrantName}
-                                    </span>
-                                    <span className={`inline-block px-2 py-0.5 rounded border text-[9px] font-bold ${posInfo?.tierColor}`}>
-                                      {posInfo?.tierName}
-                                    </span>
-                                  </div>
-                                  <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                                    <span>🧭</span>
-                                    <span>{posInfo?.directionDesc}</span>
-                                  </div>
-                                  <div className="text-[10px] text-slate-400 leading-tight">
-                                    影響位階：{posInfo?.tierInfluence}（距中心 {posInfo?.distancePercent}%）
-                                  </div>
-                                </div>
-                              </td>
-
-                              <td className="py-3.5 px-3 align-top">
-                                <div className="font-bold text-slate-700 leading-relaxed">{qStrategy?.attitude}</div>
-                                <div className="text-blue-600 text-[10px] mt-1 font-semibold">目標：{qStrategy?.focus}</div>
-                              </td>
-
-                              <td className="py-3.5 px-3 align-top">
-                                <div className="font-medium text-slate-600 leading-relaxed">
-                                  {qStrategy?.channels}
-                                </div>
-                              </td>
-
-                              <td className="py-3.5 px-3 align-top">
-                                <div className="text-slate-700 italic bg-slate-50 p-2 rounded-xl border border-slate-100 text-[11px] leading-relaxed">
-                                  {qStrategy?.actionPrompt}
-                                </div>
-                                {s.remarks && (
-                                  <div className="text-blue-700 bg-blue-50/60 p-1.5 rounded-lg border border-blue-100 text-[10px] mt-1.5 font-bold">
-                                    自訂備註：{s.remarks}
-                                  </div>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+              <div className="lg:col-span-1 space-y-4">
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 ring-1 ring-blue-50">
+                  <h2 className="text-base font-bold mb-3 text-blue-800 flex items-center gap-2"><UserCircle size={18} className="text-blue-600" /><span>「我」的資訊</span></h2>
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="我的姓名 *" />
+                      <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-medium" placeholder="我的職稱" />
+                    </div>
+                    <textarea name="remarks" value={meData.remarks} onChange={handleMeInputChange} rows="1" className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="分析目標 / 備註" />
                   </div>
                 </div>
-              )}
+
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                  <h2 className="text-base font-bold mb-3 text-slate-700 flex flex-col"><span>1. 新增利害關係人</span><span className="text-[10px] font-normal text-slate-400 mt-0.5">（最少 1 位，最多 6 位）</span></h2>
+                  <form onSubmit={addStakeholder} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-3 py-2 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500`} placeholder="姓名 *" required />
+                      <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" placeholder="職稱" />
+                    </div>
+                    <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows="1" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="備註說明" />
+                    {errorMsg && <div className="text-red-500 text-[10px] font-bold px-1 flex flex-col gap-0.5"><div className="flex items-center gap-1"><AlertCircle size={10} /> 錯誤提示</div><div className="leading-tight">{errorMsg}</div></div>}
+                    <button type="submit" disabled={stakeholders.length >= MAX_STAKEHOLDERS || !meData.name.trim()} className="w-full py-2 bg-slate-800 text-white rounded-lg font-bold text-xs shadow-md hover:bg-black disabled:bg-slate-100 disabled:text-slate-400 flex items-center justify-center gap-1 transition-all">
+                      {!meData.name.trim() ? "請先填寫您的姓名" : <><UserPlus size={14} /> 新增</>}
+                    </button>
+                  </form>
+                </div>
+
+                <div onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedId) { setStakeholders(prev => prev.map(s => s.id === draggedId ? { ...s, x: null, y: null, isPlaced: false } : s)); setDraggedId(null); }}} className="bg-white/50 p-3 rounded-2xl border-2 border-dashed border-slate-300 min-h-[90px]">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest flex items-center gap-2"><Move size={12} /> 2. 待分配圖像</h3>
+                  <div className="flex flex-wrap gap-3 justify-center">
+                    {stakeholders.filter(s => !s.isPlaced).map(s => (
+                      <div key={s.id} draggable="true" onDragStart={(e) => handleDragStartFromList(e, s.id)} onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex flex-col items-center group cursor-grab active:cursor-grabbing transition-transform active:scale-95 touch-none">
+                        <div className="relative p-0.5 bg-white rounded-full shadow-sm border border-slate-200 group-hover:border-blue-300">
+                          <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#cbd5e1'} size={40} />
+                          <button onClick={() => removeStakeholder(s.id)} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 shadow-sm"><X size={8} /></button>
+                        </div>
+                        <span className="text-[9px] font-bold mt-1 text-slate-600">{renderDisplayName(s.name)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-3 space-y-6" ref={printContainerRef}>
+                <div ref={mapRef} onDragOver={(e) => e.preventDefault()} onDrop={handleDropOnMap} className="stakeholder-map-container relative bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden aspect-[4/3] min-h-[650px] w-full flex items-center justify-center">
+                  
+                  <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none z-0">
+                     <div className="flex flex-col items-center justify-center border-r border-b border-slate-100/50 bg-blue-50/5">
+                       {showWatermark && <><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">目標對齊</span><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">主動回報</span></>}
+                     </div>
+                     <div className="flex flex-col items-center justify-center border-b border-slate-100/50 bg-amber-50/5">
+                       {showWatermark && <><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">價值共創</span><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">風險管理</span></>}
+                     </div>
+                     <div className="flex flex-col items-center justify-center border-r border-slate-100/50 bg-emerald-50/5">
+                       {showWatermark && <><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">賦能支持</span><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">情感維繫</span></>}
+                     </div>
+                     <div className="flex flex-col items-center justify-center bg-slate-50/5">
+                       {showWatermark && <><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">穩定預期</span><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">資訊同步</span></>}
+                     </div>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/30"></div>
+                    <div className="absolute w-[75%] aspect-square rounded-full bg-red-200/40"></div>
+                    <div className="absolute w-[50%] aspect-square rounded-full bg-red-300/50"></div>
+                  </div>
+
+                  <div className="absolute top-1/2 left-0 right-0 h-px bg-slate-400/40 z-10"></div>
+                  <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-400/40 z-10"></div>
+
+                  <div className="absolute top-0 left-0 right-0 flex justify-center pt-0 pointer-events-none text-center font-bold text-blue-700 text-lg z-20"><div className="bg-white border-x border-b border-blue-100 px-10 py-2 rounded-b-2xl shadow-sm">資源｜籌碼 較多</div></div>
+                  <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-0 pointer-events-none text-center font-bold text-emerald-700 text-lg z-20"><div className="bg-white border-x border-t border-emerald-100 px-10 py-2 rounded-t-2xl shadow-sm">資源｜籌碼 較少</div></div>
+                  <div className="absolute left-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-r border-slate-200 p-4 rounded-r-2xl shadow-sm"><VerticalText text="內部關係人" /></div></div>
+                  <div className="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-l border-slate-200 p-4 rounded-l-2xl shadow-sm"><VerticalText text="外部關係人" /></div></div>
+
+                  <div className="absolute inset-0 flex items-center justify-center z-[100] me-center-overlay pointer-events-none">
+                    <div className="relative flex flex-col items-center">
+                      <div className={`${meAvatarSizeClass} bg-blue-600 rounded-full ${meAvatarBorderClass} border-white shadow-2xl flex items-center justify-center text-white font-black ring-blue-50/40 transition-all`}>我</div>
+                    </div>
+                  </div>
+
+                  {placedStakeholders.map(s => {
+                    const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
+                    const isHovered = hoveredId === s.id;
+                    const isThisLiveDragging = isLiveDragging === s.id;
+                    const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
+
+                    return (
+                      <div key={s.id} onMouseEnter={() => handleMouseEnter(s.id)} onMouseLeave={handleMouseLeave} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)', zIndex: isThisLiveDragging ? 300 : (isHovered ? 200 : 50) }} className="absolute group flex flex-col items-center pointer-events-auto transition-shadow">
+                        <div 
+                          onMouseDown={(e) => handleLiveDragStart(e, s.id)}
+                          onDoubleClick={() => { setErrorMsg(''); setEditingStakeholder(s); }}
+                          onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+                          className={`relative p-1 bg-white rounded-full shadow-lg border-2 border-transparent group-hover:border-blue-500 z-10 transition-all touch-none ${isThisLiveDragging ? 'cursor-grabbing scale-110 shadow-2xl border-blue-500' : 'cursor-grab hover:scale-105'}`}
+                        >
+                          <AvatarIcon color={theme.color} size={stakeholderAvatarSize} />
+                          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); removeStakeholder(s.id); }} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 shadow-md transition-colors"><X size={12} /></button>
+                        </div>
+                        
+                        <div className={`${isMobileUI ? 'mt-[-4px]' : 'mt-[-8px]'} text-center pointer-events-none z-20 flex flex-col items-center gap-1`}>
+                          <div className={`bg-white/95 ${isMobileUI ? 'px-3 py-1 min-w-[80px]' : 'px-4 py-1.5 min-w-[100px]'} rounded-full shadow-md border border-slate-100 flex flex-col items-center transition-all`}>
+                            <div className={`font-extrabold text-slate-900 ${isMobileUI ? 'text-[11px]' : 'text-xs'} whitespace-nowrap`}>{renderDisplayName(s.name)}</div>
+                            <div className={`${isMobileUI ? 'text-[9px]' : 'text-[10px]'} text-slate-500 font-bold leading-tight mt-0.5 text-center`}>{renderDisplayTitle(s.title)}</div>
+                          </div>
+                          {qStrategy && (
+                            <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold shadow-xs whitespace-nowrap ${qStrategy.tagColor}`}>
+                              {qStrategy.tag}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {placedStakeholders.length > 0 && (
+                  <div ref={tableContainerRef} className="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 flex-wrap gap-2">
+                      <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                        <FileText className="text-blue-600" size={20} />
+                        <span>利害關係人・溝通行動對策總表</span>
+                      </h3>
+                      <span className="text-xs font-bold text-slate-400">分析主體：{meData.name || '未填寫'} {meData.title ? `(${meData.title})` : ''}</span>
+                    </div>
+                    
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <th className="py-3 px-3 font-bold">對象與職稱</th>
+                            <th className="py-3 px-3 font-bold">位置與向度說明</th>
+                            <th className="py-3 px-3 font-bold">核心態度與策略方針</th>
+                            <th className="py-3 px-3 font-bold">建議頻率與互動管道</th>
+                            <th className="py-3 px-3 font-bold">溝通起手式 / 備註指引</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {placedStakeholders.map(s => {
+                            const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
+                            const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
+                            const posInfo = getDetailedPositionInfo(s.x, s.y);
+
+                            return (
+                              <tr key={s.id} className="hover:bg-blue-50/30 transition-colors">
+                                <td className="py-3.5 px-3 align-top">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: theme.color }}></span>
+                                    <div>
+                                      <span className="font-extrabold text-slate-800 text-sm block">{s.name}</span>
+                                      <span className="text-slate-400 text-[10px]">{s.title || '無職稱'}</span>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="py-3.5 px-3 align-top">
+                                  <div className="space-y-1.5">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className={`inline-block px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${qStrategy?.tagColor}`}>
+                                        {posInfo?.quadrantName}
+                                      </span>
+                                      <span className={`inline-block px-2 py-0.5 rounded border text-[9px] font-bold ${posInfo?.tierColor}`}>
+                                        {posInfo?.tierName}
+                                      </span>
+                                    </div>
+                                    <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                                      <Compass size={12} className="text-slate-400 shrink-0" />
+                                      <span>{posInfo?.directionDesc}</span>
+                                    </div>
+                                    <div className="text-[10px] text-slate-400 leading-tight">
+                                      影響位階：{posInfo?.tierInfluence}（距中心 {posInfo?.distancePercent}%）
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="py-3.5 px-3 align-top">
+                                  <div className="font-bold text-slate-700 leading-relaxed">{qStrategy?.attitude}</div>
+                                  <div className="text-blue-600 text-[10px] mt-1 font-semibold">目標：{qStrategy?.focus}</div>
+                                </td>
+
+                                <td className="py-3.5 px-3 align-top">
+                                  <div className="font-medium text-slate-600 leading-relaxed">
+                                    {qStrategy?.channels}
+                                  </div>
+                                </td>
+
+                                <td className="py-3.5 px-3 align-top">
+                                  <div className="text-slate-700 italic bg-slate-50 p-2 rounded-xl border border-slate-100 text-[11px] leading-relaxed">
+                                    {qStrategy?.actionPrompt}
+                                  </div>
+                                  {s.remarks && (
+                                    <div className="text-blue-700 bg-blue-50/60 p-1.5 rounded-lg border border-blue-100 text-[10px] mt-1.5 font-bold">
+                                      自訂備註：{s.remarks}
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {}
-          {/* 編輯對話框 */}
           {editingStakeholder && (
-            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
-              <div className="bg-white rounded-3xl shadow-2xl w-full p-8 overflow-hidden max-w-md">
+            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-md p-4 animate-in fade-in">
+              <div className="bg-white rounded-3xl shadow-2xl w-full p-8 overflow-hidden animate-in zoom-in-95" style={{ maxWidth: '400px' }}>
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
                     <AvatarIcon color={STAKEHOLDER_THEMES[editingStakeholder.themeIndex]?.color || '#cbd5e1'} size={40} />
                     <h3 className="text-xl font-bold">修改資訊</h3>
                   </div>
-                  <button onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="text-slate-400 hover:text-slate-800 p-2"><CloseIcon size={20} /></button>
+                  <button onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="text-slate-400 hover:text-slate-800 transition-colors p-2"><X size={28} /></button>
                 </div>
                 <form onSubmit={updateStakeholder} className="space-y-5">
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">姓名</label><input type="text" name="name" value={editingStakeholder.name} onChange={handleEditChange} className={`w-full px-4 py-3 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm`} required /></div>
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">職稱</label><input type="text" name="title" value={editingStakeholder.title} onChange={handleEditChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm" /></div>
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">備註說明</label><textarea name="remarks" value={editingStakeholder.remarks} onChange={handleEditChange} rows="3" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 resize-none font-medium text-sm" /></div>
-                  <div className="flex gap-4 pt-4"><button type="button" onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 text-sm">取消</button><button type="submit" className="flex-1 py-3.5 bg-blue-600 text-white rounded-2xl font-bold shadow-xl hover:bg-blue-700 text-sm">儲存</button></div>
+                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">姓名</label><input type="text" name="name" value={editingStakeholder.name} onChange={handleEditChange} className={`w-full px-4 py-3.5 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm`} required /></div>
+                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">職稱</label><input type="text" name="title" value={editingStakeholder.title} onChange={handleEditChange} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm" /></div>
+                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">備註說明</label><textarea name="remarks" value={editingStakeholder.remarks} onChange={handleEditChange} rows="3" className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 resize-none font-medium text-sm" /></div>
+                  <div className="flex gap-4 pt-4"><button type="button" onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 text-sm">取消</button><button type="submit" className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-100 hover:bg-blue-700 text-sm">儲存</button></div>
                 </form>
               </div>
             </div>
           )}
 
-          {/* 手機觸控拖曳浮動圖標 */}
           {touchDraggingId && !stakeholders.find(s => s.id === touchDraggingId)?.isPlaced && (
             <div className="fixed pointer-events-none z-[400] -translate-x-1/2 -translate-y-1/2 opacity-80" style={{ left: touchPos.x, top: touchPos.y }}>
               <div className="p-1 bg-white rounded-full shadow-2xl border-4 border-blue-500">
@@ -1007,11 +983,17 @@
               </div>
             </div>
           )}
+
+          <style>{`
+            .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+            .touch-none { touch-action: none; }
+          `}</style>
         </div>
       );
     };
 
-    // 掛載 React App
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
