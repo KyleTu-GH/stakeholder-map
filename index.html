@@ -41,13 +41,14 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
+    // 定義人像顏色與樣式 (使用極高飽和度與絕對不透明白底，確保在任何底色上都清晰醒目)
     const STAKEHOLDER_THEMES = [
-      { color: '#3B82F6', bg: '#EFF6FF', border: '#DBEAFE' }, // 藍
-      { color: '#10B981', bg: '#ECFDF5', border: '#D1FAE5' }, // 綠
-      { color: '#F59E0B', bg: '#FFFBEB', border: '#FEF3C7' }, // 橙
-      { color: '#8B5CF6', bg: '#F5F3FF', border: '#EDE9FE' }, // 紫
-      { color: '#EF4444', bg: '#FEF2F2', border: '#FEE2E2' }, // 紅
-      { color: '#EC4899', bg: '#FDF2F8', border: '#FCE7F3' }, // 粉
+      { color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' }, // 0: 藍
+      { color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' }, // 1: 綠
+      { color: '#D97706', bg: '#FFFBEB', border: '#FDE68A' }, // 2: 橙
+      { color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' }, // 3: 紫
+      { color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' }, // 4: 紅
+      { color: '#DB2777', bg: '#FDF2F8', border: '#FBCFE8' }, // 5: 粉
     ];
 
     const QUADRANT_STRATEGIES = {
@@ -92,7 +93,7 @@
         tag: '賦能支持・情感維繫',
         tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
         attitude: '同理傾聽、肯定貢獻、平易近人',
-        focus: '工作障礙排除、團隊士氣激勵, 資訊橫向交流',
+        focus: '工作障礙排除、團隊士氣激勵、資訊橫向交流',
         variants: [
           { channels: '高頻非同步協作工具 (Slack/Teams)、日常站立晨會、茶水間茶敘交流', actionPrompt: '「大家這陣子辛苦了！手邊推進有沒有卡關的環節？我能協助向外協調哪些資源？」' },
           { channels: '週度跨組進度對齊會、一對一工作痛點排查、非正式午餐小聚談心', actionPrompt: '「最近手頭任務份量還頂得住嗎？如果跨單位溝通有阻礙，隨時告訴我，我來替大家排除！」' },
@@ -114,7 +115,8 @@
           { channels: '工作聯絡單、專案共享進度看板、結案成果通報郵件', actionPrompt: '「依據合約規範進行驗收，請於本週五前將修改完成之交付物同步上傳……」' },
           { channels: '雙週交付確認會議、規格對齊通訊郵件、執行里程碑追蹤表', actionPrompt: '「為避免期程延誤與規格落差，請貴方協助確認最新修訂之技術條款與驗收標準……」' },
           { channels: '正式工作任務派送單、月度協同進度審查、例行驗收查核會', actionPrompt: '「感謝協力配合，請依既定排程於時限內回傳成果，以利我方儘速安排後續流程……」' },
-          { channels: '專案雲端共享資料夾、外包窗口單一對接信箱、期中查核通報', actionPrompt: '「請依照日前議定之標準規格推進，若有任何不確定之細節，請即刻提出以便釐清確認……」' },
+          { channels: '專案雲端共享資料夾、外包窗口單一對接信箱、期中查核通報',
+          actionPrompt: '「請依照日前議定之標準規格推進，若有任何不確定之細節，請即刻提出以便釐清確認……」' },
           { channels: '規格確認信函、雙週交付時程檢核單、驗收缺點改善清冊', actionPrompt: '「目前進度符合合約時程，後續批次之驗收基準已發送至信箱，請回簽確認以便歸檔……」' },
           { channels: '專案進度即時看板、交付成果校驗回條、定期外包廠商溝通郵件', actionPrompt: '「提醒貴團隊下一階段交付結算日將至，請預先備妥必要之檢核報告以確保流程順暢……」' }
         ]
@@ -130,13 +132,15 @@
     };
 
     const isFullWidth = (char) => char.charCodeAt(0) > 255;
-    const truncateByWeight = (str, maxUnits, fullWidthWeight) => {
+    const truncateByWeight = (str, maxChars = 6) => {
       if (!str) return "";
-      let currentUnits = 0, result = "";
+      let count = 0, result = "";
       for (const char of str) {
-        const weight = isFullWidth(char) ? fullWidthWeight : 1;
-        if (currentUnits + weight <= maxUnits) { currentUnits += weight; result += char; }
-        else break;
+        const weight = isFullWidth(char) ? 1 : 0.6; // 中文算1個單位，英文/數字較窄
+        if (count + (isFullWidth(char) ? 1 : 1) <= maxChars) {
+          count += 1;
+          result += char;
+        } else break;
       }
       return result;
     };
@@ -146,11 +150,12 @@
       return `${String(now.getFullYear()).slice(-2)}'${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     };
 
+    // 絕對不透明白底圈，確保在任何底色（包含粉紅同心圓）上方永不被穿透或蓋過
     const AvatarIcon = ({ color, size = 64 }) => (
       <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="32" r="32" fill={color} fillOpacity="0.1" />
-        <circle cx="32" cy="24" r="12" stroke={color} strokeWidth="3" />
-        <path d="M12 52C12 42.0589 20.9543 34 32 34C43.0457 34 52 42.0589 52 52" stroke={color} strokeWidth="3" strokeLinecap="round" />
+        <circle cx="32" cy="32" r="31" fill="#ffffff" stroke={color} strokeWidth="3.5" />
+        <circle cx="32" cy="24" r="11" fill={color} fillOpacity="0.25" stroke={color} strokeWidth="3" />
+        <path d="M12 50C12 40.0589 20.9543 33 32 33C43.0457 33 52 40.0589 52 50" stroke={color} strokeWidth="3" strokeLinecap="round" />
       </svg>
     );
 
@@ -166,11 +171,8 @@
       const [hoveredId, setHoveredId] = useState(null);
       const [isDownloading, setIsDownloading] = useState(false);
       const [downloadError, setDownloadError] = useState('');
-      const [libsReady, setLibsReady] = useState(true);
       const [mapWidth, setMapWidth] = useState(800);
       const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
-      const [touchDraggingId, setTouchDraggingId] = useState(null);
-      const [touchPos, setTouchPos] = useState({ x: 0, y: 0 });
 
       const mapRef = useRef(null);
       const printContainerRef = useRef(null);
@@ -221,19 +223,22 @@
 
       const handleMeInputChange = (e) => {
         const { name, value } = e.target;
-        setMeData(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
+        const maxLimit = (name === 'remarks') ? 200 : 6;
+        setMeData(prev => ({ ...prev, [name]: truncateByWeight(value, maxLimit) }));
       };
 
       const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (errorMsg) setErrorMsg('');
-        setFormData(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
+        const maxLimit = (name === 'remarks') ? 200 : 6;
+        setFormData(prev => ({ ...prev, [name]: truncateByWeight(value, maxLimit) }));
       };
 
       const handleEditChange = (e) => {
         const { name, value } = e.target;
         if (errorMsg) setErrorMsg('');
-        setEditingStakeholder(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
+        const maxLimit = (name === 'remarks') ? 200 : 6;
+        setEditingStakeholder(prev => ({ ...prev, [name]: truncateByWeight(value, maxLimit) }));
       };
 
       const checkIsDuplicate = (name, title, idToExclude = null) => {
@@ -259,7 +264,8 @@
 
       const updateStakeholder = (e) => {
         e.preventDefault();
-        const updatedName = editingStakeholder.name.trim(), updatedTitle = editingStakeholder.title.trim();
+        const updatedName = editingStakeholder.name.trim();
+        const updatedTitle = editingStakeholder.title.trim();
         if (checkIsDuplicate(updatedName, updatedTitle, editingStakeholder.id)) { setErrorMsg('姓名與職稱組合不能重複'); return; }
         setStakeholders(prev => prev.map(s => s.id === editingStakeholder.id ? { ...editingStakeholder, name: updatedName, title: updatedTitle } : s));
         setEditingStakeholder(null); setErrorMsg('');
@@ -310,11 +316,12 @@
         container.style.left = '-9999px'; container.style.top = '-9999px';
         container.style.backgroundColor = '#ffffff'; container.innerHTML = htmlContent;
         document.body.appendChild(container);
-        const canvas = await window.html2canvas(container, { scale: 2.5, backgroundColor: '#ffffff', logging: false });
+        const canvas = await window.html2canvas(container, { scale: 2, backgroundColor: '#ffffff', logging: false });
         document.body.removeChild(container);
         return canvas;
       };
 
+      // 嚴謹分頁防截斷 PDF 匯出引擎（逐列計算高度，絕不截斷列內容）
       const downloadPdfReport = async () => {
         if (!mapRef.current || !window.html2canvas || !window.jspdf) return;
         setIsDownloading(true); setDownloadError('');
@@ -323,39 +330,42 @@
           const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
           const pageWidth = 210, pageHeight = 297, margin = 10, contentWidth = pageWidth - margin * 2;
 
-          const headerHtml = `<div style="padding: 6px 0 10px 0; border-bottom: 2px solid #e2e8f0;"><div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">利害關係人・相對關係圖與溝通行動對策報告</div><div style="font-size: 13px; font-weight: 600; color: #64748b;">分析主體：${meData.name || '未填寫'} ${meData.title ? `(${meData.title})` : ''} ｜ 產生時間：${getFormattedTimestamp()}</div></div>`;
+          const headerHtml = `<div style="padding: 6px 0 10px 0; border-bottom: 2px solid #e2e8f0;"><div style="font-size: 22px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">利害關係人・相對關係圖與溝通行動對策報告</div><div style="font-size: 12px; font-weight: 600; color: #64748b;">分析主體：${meData.name || '未填寫'} ${meData.title ? `(${meData.title})` : ''} ｜ 產生時間：${getFormattedTimestamp()}</div></div>`;
           const reportHeaderCanvas = await renderDomTextToCanvas(headerHtml, 1000);
           const reportHeaderHeightInMm = (reportHeaderCanvas.height * contentWidth) / reportHeaderCanvas.width;
-          const reportHeaderImgData = reportHeaderCanvas.toDataURL('image/jpeg', 0.95);
+          const reportHeaderImgData = reportHeaderCanvas.toDataURL('image/jpeg', 0.92);
 
-          const mapCanvas = await window.html2canvas(mapRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, onclone: (doc) => { doc.querySelectorAll('.download-ignore').forEach(el => el.style.display = 'none'); } });
+          const mapCanvas = await window.html2canvas(mapRef.current, {
+            scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false,
+            onclone: (doc) => { doc.querySelectorAll('.download-ignore').forEach(el => el.style.display = 'none'); }
+          });
           const mapHeightInMm = (mapCanvas.height * contentWidth) / mapCanvas.width;
-          const mapImgData = mapCanvas.toDataURL('image/jpeg', 0.95);
+          const mapImgData = mapCanvas.toDataURL('image/jpeg', 0.92);
 
           let currentY = margin;
           pdf.addImage(reportHeaderImgData, 'JPEG', margin, currentY, contentWidth, reportHeaderHeightInMm);
-          currentY += reportHeaderHeightInMm + 5;
+          currentY += reportHeaderHeightInMm + 4;
           pdf.addImage(mapImgData, 'JPEG', margin, currentY, contentWidth, mapHeightInMm);
-          currentY += mapHeightInMm + 8;
+          currentY += mapHeightInMm + 6;
 
           if (placedStakeholders.length > 0 && tableContainerRef.current) {
             const tableContainer = tableContainerRef.current;
             const tableHeaderEl = tableContainer.querySelector('thead');
             const rows = tableContainer.querySelectorAll('tbody tr');
 
-            const tableTitleHtml = `<div style="padding: 6px 0 6px 0;"><div style="font-size: 18px; font-weight: 900; color: #1e293b;"><span style="color: #2563eb;">■</span> 利害關係人・溝通行動對策總表</div></div>`;
+            const tableTitleHtml = `<div style="padding: 4px 0 4px 0;"><div style="font-size: 16px; font-weight: 900; color: #1e293b;"><span style="color: #2563eb;">■</span> 利害關係人・溝通行動對策總表</div></div>`;
             const tableTitleCanvas = await renderDomTextToCanvas(tableTitleHtml, 1000);
             const tableTitleHeightInMm = (tableTitleCanvas.height * contentWidth) / tableTitleCanvas.width;
-            const tableTitleImgData = tableTitleCanvas.toDataURL('image/jpeg', 0.95);
+            const tableTitleImgData = tableTitleCanvas.toDataURL('image/jpeg', 0.92);
 
             let theadCanvas = null, theadHeightInMm = 0, theadImgData = null;
             if (tableHeaderEl) {
-              theadCanvas = await window.html2canvas(tableHeaderEl, { scale: 2, useCORS: true, backgroundColor: '#f8fafc', logging: false });
+              theadCanvas = await window.html2canvas(tableHeaderEl, { scale: 1.5, useCORS: true, backgroundColor: '#f8fafc', logging: false });
               theadHeightInMm = (theadCanvas.height * contentWidth) / theadCanvas.width;
-              theadImgData = theadCanvas.toDataURL('image/jpeg', 0.95);
+              theadImgData = theadCanvas.toDataURL('image/jpeg', 0.92);
             }
 
-            let firstRowHeightInMm = 25;
+            let firstRowHeightInMm = 20;
             if (rows.length > 0) {
               const testRowCanvas = await window.html2canvas(rows[0], { scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false });
               firstRowHeightInMm = (testRowCanvas.height * contentWidth) / testRowCanvas.width;
@@ -370,9 +380,9 @@
             if (theadImgData) { pdf.addImage(theadImgData, 'JPEG', margin, currentY, contentWidth, theadHeightInMm); currentY += theadHeightInMm; }
 
             for (let i = 0; i < rows.length; i++) {
-              const rowCanvas = await window.html2canvas(rows[i], { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+              const rowCanvas = await window.html2canvas(rows[i], { scale: 1.5, useCORS: true, backgroundColor: '#ffffff', logging: false });
               const rowHeightInMm = (rowCanvas.height * contentWidth) / rowCanvas.width;
-              const rowImgData = rowCanvas.toDataURL('image/jpeg', 0.95);
+              const rowImgData = rowCanvas.toDataURL('image/jpeg', 0.92);
 
               if (currentY + rowHeightInMm > pageHeight - margin) {
                 pdf.addPage(); currentY = margin;
@@ -384,9 +394,11 @@
               currentY += rowHeightInMm;
             }
           }
-          pdf.save(`利害關係人溝通行動對策報告_${getFormattedTimestamp()}.pdf`);
+
+          const fileName = `利害關係人溝通行動對策報告_${getFormattedTimestamp()}.pdf`;
+          pdf.save(fileName);
         } catch (e) {
-          setDownloadError('PDF 匯出失敗，請使用外開瀏覽器。');
+          setDownloadError('PDF 匯出失敗，請重新整理頁面後再試。');
         } finally { setIsDownloading(false); }
       };
 
@@ -406,15 +418,18 @@
           <div className="max-w-7xl mx-auto">
             <header className="mb-6 border-b border-slate-200 pb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">利害關係人-相對關係圖</h1>
+                <div className="flex items-baseline gap-3">
+                  <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">利害關係人-相對關係圖</h1>
+                  <span className="text-[10px] text-slate-400 font-medium uppercase">26'0905-1830</span>
+                </div>
                 <div className="mt-4 flex gap-3">
                   <button onClick={() => setShowWatermark(!showWatermark)} className={`px-4 py-2 border rounded-xl text-sm font-bold ${showWatermark ? 'bg-blue-600 text-white' : 'bg-white text-slate-600'}`}>
                     策略提示：{showWatermark ? '顯示' : '隱藏'}
                   </button>
                 </div>
               </div>
-              <button onClick={downloadPdfReport} disabled={isDownloading || placedStakeholders.length === 0} className={`px-6 py-2.5 rounded-xl font-bold text-white ${placedStakeholders.length === 0 ? 'bg-slate-300' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                {isDownloading ? '處理中...' : '匯出 PDF 報告 (含對策表)'}
+              <button onClick={downloadPdfReport} disabled={isDownloading || placedStakeholders.length === 0} className={`px-6 py-2.5 rounded-xl font-bold text-white shadow-md ${placedStakeholders.length === 0 ? 'bg-slate-300' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'}`}>
+                {isDownloading ? 'PDF 產生中...' : '匯出 PDF 報告 (含對策表)'}
               </button>
             </header>
 
@@ -422,15 +437,15 @@
               <div className="lg:col-span-1 space-y-4">
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200">
                   <h2 className="text-base font-bold mb-3 text-blue-800">「我」的資訊</h2>
-                  <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs mb-2 font-bold" placeholder="我的姓名 *" />
-                  <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs" placeholder="我的職稱" />
+                  <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} maxLength="6" className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs mb-2 font-bold" placeholder="我的姓名 (最多6字) *" />
+                  <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} maxLength="6" className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs" placeholder="我的職銜 (最多6字)" />
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
                   <h2 className="text-base font-bold mb-3 text-slate-700">1. 新增利害關係人</h2>
                   <form onSubmit={addStakeholder} className="space-y-3">
-                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="姓名 *" required />
-                    <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="職稱" />
+                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} maxLength="6" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="姓名 (最多6字) *" required />
+                    <input type="text" name="title" value={formData.title} onChange={handleInputChange} maxLength="6" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="職銜 (最多6字)" />
                     {errorMsg && <div className="text-red-500 text-[10px] font-bold">{errorMsg}</div>}
                     <button type="submit" disabled={stakeholders.length >= MAX_STAKEHOLDERS || !meData.name.trim()} className="w-full py-2 bg-slate-800 text-white rounded-lg text-xs font-bold">新增</button>
                   </form>
@@ -440,8 +455,8 @@
                   <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2">2. 待分配圖像</h3>
                   <div className="flex flex-wrap gap-3 justify-center">
                     {stakeholders.filter(s => !s.isPlaced).map(s => (
-                      <div key={s.id} draggable="true" onDragStart={(e) => setDraggedId(s.id)} className="flex flex-col items-center cursor-grab">
-                        <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#3B82F6'} size={40} />
+                      <div key={s.id} draggable="true" onDragStart={(e) => { e.dataTransfer.setData('text/plain', s.id); setDraggedId(s.id); }} className="flex flex-col items-center cursor-grab">
+                        <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#2563EB'} size={40} />
                         <span className="text-[9px] font-bold mt-1">{s.name}</span>
                       </div>
                     ))}
@@ -459,7 +474,7 @@
                   </div>
 
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                    <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/35"></div>
+                    <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/30"></div>
                     <div className="absolute w-[75%] aspect-square rounded-full bg-red-200/40"></div>
                     <div className="absolute w-[50%] aspect-square rounded-full bg-red-300/50"></div>
                   </div>
@@ -475,13 +490,16 @@
                     const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
                     const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
                     return (
-                      <div key={s.id} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)' }} className="absolute flex flex-col items-center cursor-grab active:cursor-grabbing" onMouseDown={(e) => handleLiveDragStart(e, s.id)}>
+                      <div key={s.id} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)', zIndex: 300 }} className="absolute flex flex-col items-center cursor-grab active:cursor-grabbing" onMouseDown={(e) => handleLiveDragStart(e, s.id)} onDoubleClick={() => { setErrorMsg(''); setEditingStakeholder(s); }}>
                         <div className="p-1 bg-white rounded-full shadow-lg border-2 border-transparent hover:border-blue-500">
                           <AvatarIcon color={theme.color} size={stakeholderAvatarSize} />
                         </div>
-                        <div className="mt-[-6px] text-center pointer-events-none">
-                          <div className="bg-white/95 px-3 py-1 rounded-full shadow-md border border-slate-100 text-xs font-bold">{s.name}</div>
-                          {qStrategy && <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${qStrategy.tagColor}`}>{qStrategy.tag}</div>}
+                        <div className="mt-[-6px] text-center pointer-events-none flex flex-col items-center z-[310]">
+                          <div className="bg-white/95 px-3 py-1 rounded-full shadow-md border border-slate-100 text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
+                            <span className="text-slate-900">{s.name}</span>
+                            {s.title && <span className="text-slate-400 font-normal">({s.title})</span>}
+                          </div>
+                          {qStrategy && <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold mt-1 ${qStrategy.tagColor}`}>{qStrategy.tag}</div>}
                         </div>
                       </div>
                     );
@@ -494,7 +512,7 @@
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
                         <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                          <th className="py-3 px-3 font-bold">對象與職稱</th>
+                          <th className="py-3 px-3 font-bold">對象與職銜</th>
                           <th className="py-3 px-3 font-bold">位置與向度說明</th>
                           <th className="py-3 px-3 font-bold">核心態度與策略方針</th>
                           <th className="py-3 px-3 font-bold">建議頻率與互動管道</th>
@@ -510,8 +528,11 @@
                             <tr key={s.id} className="hover:bg-blue-50/30">
                               <td className="py-3 px-3">
                                 <div className="flex items-center gap-2">
-                                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.color }}></span>
-                                  <span className="font-extrabold text-slate-800">{s.name}</span>
+                                  <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: theme.color }}></span>
+                                  <div>
+                                    <span className="font-extrabold text-slate-800">{s.name}</span>
+                                    {s.title && <span className="text-slate-400 text-[10px] ml-1">({s.title})</span>}
+                                  </div>
                                 </div>
                               </td>
                               <td className="py-3 px-3">
@@ -531,6 +552,33 @@
               </div>
             </div>
           </div>
+
+          {/* 編輯利害關係人彈跳視窗 */}
+          {editingStakeholder && (
+            <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
+              <div className="bg-white rounded-3xl shadow-2xl w-full p-8 max-w-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold">編輯利害關係人</h3>
+                  <button onClick={() => setEditingStakeholder(null)} className="text-slate-400 hover:text-slate-800 p-2 font-black text-xl">×</button>
+                </div>
+                <form onSubmit={updateStakeholder} className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase">姓名 (最多6字) *</label>
+                    <input type="text" name="name" value={editingStakeholder.name} onChange={handleEditChange} maxLength="6" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold mt-1" required />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase">職銜 (最多6字)</label>
+                    <input type="text" name="title" value={editingStakeholder.title} onChange={handleEditChange} maxLength="6" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs mt-1" />
+                  </div>
+                  {errorMsg && <div className="text-red-500 text-[10px] font-bold">{errorMsg}</div>}
+                  <div className="flex gap-2 pt-2">
+                    <button type="button" onClick={() => setEditingStakeholder(null)} className="flex-1 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs">取消</button>
+                    <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs">儲存</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       );
     };
