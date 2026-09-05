@@ -149,8 +149,13 @@
       const [draggedId, setDraggedId] = useState(null);
       const [isLiveDragging, setIsLiveDragging] = useState(null);
       const [touchDraggingId, setTouchDraggingId] = useState(null);
+      
+      // PDF & Mobile Modal state
       const [isDownloading, setIsDownloading] = useState(false);
       const [downloadError, setDownloadError] = useState('');
+      const [modalMessage, setModalMessage] = useState(null);
+      const [pdfResultUrl, setPdfResultUrl] = useState(null);
+
       const [mapWidth, setMapWidth] = useState(800);
 
       const mapRef = useRef(null);
@@ -244,7 +249,7 @@
 
       const removeStakeholder = (id) => setStakeholders(prev => prev.filter(s => s.id !== id));
 
-      // 滑鼠與觸控移動核心
+      // 滑鼠拖曳
       const handleLiveDragStart = (e, id) => {
         if (e.button !== 0) return; e.preventDefault(); e.stopPropagation();
         setIsLiveDragging(id);
@@ -270,6 +275,7 @@
         };
       }, [isLiveDragging]);
 
+      // 手機觸控拖曳 (包含已放置在地圖上的圖標)
       const handleTouchStart = (e, id) => {
         if (isDownloading) return;
         setTouchDraggingId(id);
@@ -311,9 +317,13 @@
         return canvas;
       };
 
+      // PDF 匯出核心 (含手機通知視窗)
       const downloadPdfReport = async () => {
         if (!mapRef.current || !window.html2canvas || !window.jspdf) return;
-        setIsDownloading(true); setDownloadError('');
+        setIsDownloading(true); 
+        setDownloadError('');
+        setModalMessage('正在產生 PDF 報告，請稍候...');
+
         try {
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -385,16 +395,27 @@
           }
 
           const fileName = `利害關係人溝通行動對策報告_${getFormattedTimestamp()}.pdf`;
-          try {
-            pdf.save(fileName);
-          } catch (blobErr) {
+          
+          // 檢測是否為手機環境
+          const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+          
+          if (isMobileDevice) {
             const pdfBlob = pdf.output('blob');
             const blobUrl = URL.createObjectURL(pdfBlob);
-            window.open(blobUrl, '_blank');
+            setPdfResultUrl(blobUrl);
+            setModalMessage('PDF 報告已成功產生！請點擊下方按鈕下載或預覽。');
+          } else {
+            pdf.save(fileName);
+            setIsDownloading(false);
+            setModalMessage(null);
           }
         } catch (e) {
+          console.error(e);
           setDownloadError('PDF 匯出失敗');
-        } finally { setIsDownloading(false); }
+          setModalMessage('PDF 產生過程發生錯誤，請重新整理後再試一次。');
+        } finally {
+          setIsDownloading(false);
+        }
       };
 
       const placedStakeholders = stakeholders.filter(s => s.isPlaced);
@@ -564,6 +585,31 @@
               </div>
             </div>
           </div>
+
+          {/* 手機 PDF 匯出結果通知彈跳視窗 */}
+          {modalMessage && (
+            <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+              <div className="bg-white rounded-3xl shadow-2xl w-full p-6 max-w-sm text-center">
+                <h3 className="text-lg font-bold text-slate-800 mb-3">PDF 匯出通知</h3>
+                <p className="text-xs text-slate-600 leading-relaxed mb-6">{modalMessage}</p>
+                
+                {pdfResultUrl ? (
+                  <div className="space-y-3">
+                    <a href={pdfResultUrl} download={`利害關係人報告_${getFormattedTimestamp()}.pdf`} className="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-lg">
+                      點擊下載 PDF 檔案
+                    </a>
+                    <a href={pdfResultUrl} target="_blank" rel="noopener noreferrer" className="block w-full py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs">
+                      在新分頁預覽 PDF
+                    </a>
+                  </div>
+                ) : null}
+
+                <button onClick={() => { setModalMessage(null); setPdfResultUrl(null); }} className="mt-4 w-full py-2.5 bg-slate-200 text-slate-700 rounded-xl font-bold text-xs">
+                  關閉視窗
+                </button>
+              </div>
+            </div>
+          )}
 
           {editingStakeholder && (
             <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/50 backdrop-blur-md p-4">
