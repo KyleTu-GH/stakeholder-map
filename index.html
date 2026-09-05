@@ -8,14 +8,14 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- React 18 & ReactDOM 18 CDN -->
+  <!-- React & ReactDOM CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   
-  <!-- Babel Standalone for in-browser JSX parsing -->
+  <!-- Babel Standalone -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.6/babel.min.js"></script>
   
-  <!-- html2canvas & jsPDF for PDF generation -->
+  <!-- html2canvas & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -32,22 +32,24 @@
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
-  <div id="root"></div>
+  <div id="root">
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: #64748b;">
+      系統載入中，請稍候...
+    </div>
+  </div>
 
   <script type="text/babel">
-    const { useState, useRef, useEffect, useMemo } = React;
+    const { useState, useRef, useEffect } = React;
 
-    // 6 種顏色主題配置
     const STAKEHOLDER_THEMES = [
-      { color: '#3B82F6', bg: '#EFF6FF', border: '#DBEAFE' }, // 0: 藍
-      { color: '#10B981', bg: '#ECFDF5', border: '#D1FAE5' }, // 1: 綠
-      { color: '#F59E0B', bg: '#FFFBEB', border: '#FEF3C7' }, // 2: 橙
-      { color: '#8B5CF6', bg: '#F5F3FF', border: '#EDE9FE' }, // 3: 紫
-      { color: '#EF4444', bg: '#FEF2F2', border: '#FEE2E2' }, // 4: 紅
-      { color: '#EC4899', bg: '#FDF2F8', border: '#FCE7F3' }, // 5: 粉
+      { color: '#3B82F6', bg: '#EFF6FF', border: '#DBEAFE' }, // 藍
+      { color: '#10B981', bg: '#ECFDF5', border: '#D1FAE5' }, // 綠
+      { color: '#F59E0B', bg: '#FFFBEB', border: '#FEF3C7' }, // 橙
+      { color: '#8B5CF6', bg: '#F5F3FF', border: '#EDE9FE' }, // 紫
+      { color: '#EF4444', bg: '#FEF2F2', border: '#FEE2E2' }, // 紅
+      { color: '#EC4899', bg: '#FDF2F8', border: '#FCE7F3' }, // 粉
     ];
 
-    // 四象限策略指引及多重用語變體（完全移除「象限」字樣）
     const QUADRANT_STRATEGIES = {
       Q1: {
         name: '內部高籌碼 (關鍵主管/老闆)',
@@ -58,30 +60,12 @@
         attitude: '積極透明、主動當責、預判需求',
         focus: '資源爭取、效益回饋、消除決策盲點',
         variants: [
-          {
-            channels: '常態週報與關鍵節點對齊、專題匯報、高階一對一備忘錄',
-            actionPrompt: '「依循上次指示推進，目前關鍵指標達標，需請您在資源配置上給予指導……」'
-          },
-          {
-            channels: '雙週重點里程碑檢視、決策風險預判簡報、非同步戰略要點同步',
-            actionPrompt: '「向您簡報目前專案核心進程，已為您預判潛在變數並備妥因應對策，供您裁示……」'
-          },
-          {
-            channels: '月度經營方針列席對齊、重大效益交付簽核、不定期高層策略請益',
-            actionPrompt: '「目前項目總體節奏穩定，特此向您呈報階段性成果，確保推進方向與整體大局一致……」'
-          },
-          {
-            channels: '專案里程碑專項會審、高階一對一面談、關鍵決策看板實時通報',
-            actionPrompt: '「感謝主管先前的方向引領，目前重大節點皆已部署就緒，後續需請您協助把關整體資源……」'
-          },
-          {
-            channels: '重要決策前閉門諮詢、正式進度公文備忘、高階目標階段性覆核',
-            actionPrompt: '「已按既定時程完成關鍵交付，為求效益極大化，想向您請教在跨事業體協調上的建議……」'
-          },
-          {
-            channels: '關鍵指標看板共享、定期高層晨會摘要、重大策略預算檢視',
-            actionPrompt: '「目前執行均符合預期目標，針對下一階段之戰略推進，特別整理分析摘要請您指導……」'
-          }
+          { channels: '常態週報與關鍵節點對齊、專題匯報、高階一對一備忘錄', actionPrompt: '「依循上次指示推進，目前關鍵指標達標，需請您在資源配置上給予指導……」' },
+          { channels: '雙週重點里程碑檢視、決策風險預判簡報、非同步戰略要點同步', actionPrompt: '「向您簡報目前專案核心進程，已為您預判潛在變數並備妥因應對策，供您裁示……」' },
+          { channels: '月度經營方針列席對齊、重大效益交付簽核、不定期高層策略請益', actionPrompt: '「目前項目總體節奏穩定，特此向您呈報階段性成果，確保推進方向與整體大局一致……」' },
+          { channels: '專案里程碑專項會審、高階一對一面談、關鍵決策看板實時通報', actionPrompt: '「感謝主管先前的方向引領，目前重大節點皆已部署就緒，後續需請您協助把關整體資源……」' },
+          { channels: '重要決策前閉門諮詢、正式進度公文備忘、高階目標階段性覆核', actionPrompt: '「已按既定時程完成關鍵交付，為求效益極大化，想向您請教在跨事業體協調上的建議……」' },
+          { channels: '關鍵指標看板共享、定期高層晨會摘要、重大策略預算檢視', actionPrompt: '「目前執行均符合預期目標，針對下一階段之戰略推進，特別整理分析摘要請您指導……」' }
         ]
       },
       Q2: {
@@ -93,30 +77,12 @@
         attitude: '嚴謹審慎、契約共識、高度敬業',
         focus: '商業雙贏、合規性維護、危機早防早控',
         variants: [
-          {
-            channels: '專案月度會審、正式公務信函、專題商業拜會',
-            actionPrompt: '「為確保雙方預期目標一致，我們已針對關鍵時程做成風險評估，供貴方參酌確認……」'
-          },
-          {
-            channels: '雙週交付進度協調會、正式備忘錄（Minutes/MOU）、里程碑驗收會議',
-            actionPrompt: '「感謝貴方長期以來的信任協作，本階段成果已達預定標準，特此提供檢視報告以利後續深化共創……」'
-          },
-          {
-            channels: '季度策略合作委員會、高階商務餐敘、合規專案法規諮詢',
-            actionPrompt: '「為持續創造雙贏價值，我們已先行梳理法規與市場潛在影響，誠摯邀請貴方共同檢視優化方向……」'
-          },
-          {
-            channels: '關鍵節點正式進度通報、商務合約審視小組、外部專家聯席會審',
-            actionPrompt: '「本團隊已如期完備關鍵承諾項目，針對下一階段合作細節，想向貴方請益並確立推展步驟……」'
-          },
-          {
-            channels: '雙邊專案高階會議、正式公務電子信件、重要里程碑公證檢驗',
-            actionPrompt: '「特此呈遞本期成果驗證清冊，為確保整體進度順暢，誠邀貴方共同確立驗收關鍵指標……」'
-          },
-          {
-            channels: '策略夥伴季度座談、重大風險聯防通報、定期商務進程簡報',
-            actionPrompt: '「為落實長期策略共識，我方已完備配套方案，盼與貴團隊預約會議研商後續協作時程……」'
-          }
+          { channels: '專案月度會審、正式公務信函、專題商業拜會', actionPrompt: '「為確保雙方預期目標一致，我們已針對關鍵時程做成風險評估，供貴方參酌確認……」' },
+          { channels: '雙週交付進度協調會、正式備忘錄（Minutes/MOU）、里程碑驗收會議', actionPrompt: '「感謝貴方長期以來的信任協作，本階段成果已達預定標準，特此提供檢視報告以利後續深化共創……」' },
+          { channels: '季度策略合作委員會、高階商務餐敘、合規專案法規諮詢', actionPrompt: '「為持續創造雙贏價值，我們已先行梳理法規與市場潛在影響，誠摯邀請貴方共同檢視優化方向……」' },
+          { channels: '關鍵節點正式進度通報、商務合約審視小組、外部專家聯席會審', actionPrompt: '「本團隊已如期完備關鍵承諾項目，針對下一階段合作細節，想向貴方請益並確立推展步驟……」' },
+          { channels: '雙邊專案高階會議、正式公務電子信件、重要里程碑公證檢驗', actionPrompt: '「特此呈遞本期成果驗證清冊，為確保整體進度順暢，誠邀貴方共同確立驗收關鍵指標……」' },
+          { channels: '策略夥伴季度座談、重大風險聯防通報、定期商務進程簡報', actionPrompt: '「為落實長期策略共識，我方已完備配套方案，盼與貴團隊預約會議研商後續協作時程……」' }
         ]
       },
       Q3: {
@@ -126,32 +92,14 @@
         tag: '賦能支持・情感維繫',
         tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
         attitude: '同理傾聽、肯定貢獻、平易近人',
-        focus: '工作障礙排除、團隊士氣激勵、資訊橫向交流',
+        focus: '工作障礙排除、團隊士氣激勵, 資訊橫向交流',
         variants: [
-          {
-            channels: '高頻非同步協作工具 (Slack/Teams)、日常站立晨會、茶水間茶敘交流',
-            actionPrompt: '「大家這陣子辛苦了！手邊推進有沒有卡關的環節？我能協助向外協調哪些資源？」'
-          },
-          {
-            channels: '週度跨組進度對齊會、一對一工作痛點排查、非正式午餐小聚談心',
-            actionPrompt: '「最近手頭任務份量還頂得住嗎？如果跨單位溝通有阻礙，隨時告訴我，我來替大家排除！」'
-          },
-          {
-            channels: '敏捷看板任務梳理、雙週小組復盤（Retro）、團隊打氣交流與成果分享',
-            actionPrompt: '「看到大家這週的進度很有突破！想聽聽看在執行細節上，還有哪些流程可以幫大家做得更順暢？」'
-          },
-          {
-            channels: '即時通訊小組頻道、任務交付即時鳴謝、非正式工作坊協同討論',
-            actionPrompt: '「這部分多虧有你把關！想確認一下後續執行有沒有遇到難處？需要找誰協同幫忙儘管說！」'
-          },
-          {
-            channels: '日常工作進度清單核對、跨部門支援工作聯繫、階段性犒賞與感謝小聚',
-            actionPrompt: '「感謝夥伴們這段時間的全力投入！有任何需要支援或覺得不順暢的地方，我們一起來想辦法解決！」'
-          },
-          {
-            channels: '專案執行進度即時反饋、茶水間隨性交流、月度團隊士氣復盤會',
-            actionPrompt: '「大家的付出我都看在眼裡！手邊的推進若需要主管層級協調其他部門，隨時跟我提出！」'
-          }
+          { channels: '高頻非同步協作工具 (Slack/Teams)、日常站立晨會、茶水間茶敘交流', actionPrompt: '「大家這陣子辛苦了！手邊推進有沒有卡關的環節？我能協助向外協調哪些資源？」' },
+          { channels: '週度跨組進度對齊會、一對一工作痛點排查、非正式午餐小聚談心', actionPrompt: '「最近手頭任務份量還頂得住嗎？如果跨單位溝通有阻礙，隨時告訴我，我來替大家排除！」' },
+          { channels: '敏捷看板任務梳理、雙週小組復盤（Retro）、團隊打氣交流與成果分享', actionPrompt: '「看到大家這週的進度很有突破！想聽聽看在執行細節上，還有哪些流程可以幫大家做得更順暢？」' },
+          { channels: '即時通訊小組頻道、任務交付即時鳴謝、非正式工作坊協同討論', actionPrompt: '「這部分多虧有你把關！想確認一下後續執行有沒有遇到難處？需要找誰協同幫忙儘管說！」' },
+          { channels: '日常工作進度清單核對、跨部門支援工作聯繫、階段性犒賞與感謝小聚', actionPrompt: '「感謝夥伴們這段時間的全力投入！有任何需要支援或覺得不順暢的地方，我們一起來想辦法解決！」' },
+          { channels: '專案執行進度即時反饋、茶水間隨性交流、月度團隊士氣復盤會', actionPrompt: '「大家的付出我都看在眼裡！手邊的推進若需要主管層級協調其他部門，隨時跟我提出！」' }
         ]
       },
       Q4: {
@@ -163,30 +111,12 @@
         attitude: '明確具體、按部就班、誠信透明',
         focus: '驗收規格對焦、交付品質達標、避免期程延誤',
         variants: [
-          {
-            channels: '工作聯絡單、專案共享進度看板、結案成果通報郵件',
-            actionPrompt: '「依據合約規範進行驗收，請於本週五前將修改完成之交付物同步上傳……」'
-          },
-          {
-            channels: '雙週交付確認會議、規格對齊通訊郵件、執行里程碑追蹤表',
-            actionPrompt: '「為避免期程延誤與規格落差，請貴方協助確認最新修訂之技術條款與驗收標準……」'
-          },
-          {
-            channels: '正式工作任務派送單、月度協同進度審查、例行驗收查核會',
-            actionPrompt: '「感謝協力配合，請依既定排程於時限內回傳成果，以利我方儘速安排後續流程……」'
-          },
-          {
-            channels: '專案雲端共享資料夾、外包窗口單一對接信箱、期中查核通報',
-            actionPrompt: '「請依照日前議定之標準規格推進，若有任何不確定之細節，請即刻提出以便釐清確認……」'
-          },
-          {
-            channels: '規格確認信函、雙週交付時程檢核單、驗收缺點改善清冊',
-            actionPrompt: '「目前進度符合合約時程，後續批次之驗收基準已發送至信箱，請回簽確認以便歸檔……」'
-          },
-          {
-            channels: '專案進度即時看板、交付成果校驗回條、定期外包廠商溝通郵件',
-            actionPrompt: '「提醒貴團隊下一階段交付結算日將至，請預先備妥必要之檢核報告以確保流程順暢……」'
-          }
+          { channels: '工作聯絡單、專案共享進度看板、結案成果通報郵件', actionPrompt: '「依據合約規範進行驗收，請於本週五前將修改完成之交付物同步上傳……」' },
+          { channels: '雙週交付確認會議、規格對齊通訊郵件、執行里程碑追蹤表', actionPrompt: '「為避免期程延誤與規格落差，請貴方協助確認最新修訂之技術條款與驗收標準……」' },
+          { channels: '正式工作任務派送單、月度協同進度審查、例行驗收查核會', actionPrompt: '「感謝協力配合，請依既定排程於時限內回傳成果，以利我方儘速安排後續流程……」' },
+          { channels: '專案雲端共享資料夾、外包窗口單一對接信箱、期中查核通報', actionPrompt: '「請依照日前議定之標準規格推進，若有任何不確定之細節，請即刻提出以便釐清確認……」' },
+          { channels: '規格確認信函、雙週交付時程檢核單、驗收缺點改善清冊', actionPrompt: '「目前進度符合合約時程，後續批次之驗收基準已發送至信箱，請回簽確認以便歸檔……」' },
+          { channels: '專案進度即時看板、交付成果校驗回條、定期外包廠商溝通郵件', actionPrompt: '「提醒貴團隊下一階段交付結算日將至，請預先備妥必要之檢核報告以確保流程順暢……」' }
         ]
       }
     };
@@ -196,38 +126,24 @@
       const base = QUADRANT_STRATEGIES[qKey];
       const variants = base.variants || [];
       const variant = variants[indexInQuadrant % variants.length] || variants[0];
-      return {
-        ...base,
-        channels: variant.channels,
-        actionPrompt: variant.actionPrompt
-      };
+      return { ...base, channels: variant.channels, actionPrompt: variant.actionPrompt };
     };
 
     const isFullWidth = (char) => char.charCodeAt(0) > 255;
-
     const truncateByWeight = (str, maxUnits, fullWidthWeight) => {
       if (!str) return "";
-      let currentUnits = 0;
-      let result = "";
+      let currentUnits = 0, result = "";
       for (const char of str) {
         const weight = isFullWidth(char) ? fullWidthWeight : 1;
-        if (currentUnits + weight <= maxUnits) {
-          currentUnits += weight;
-          result += char;
-        } else break;
+        if (currentUnits + weight <= maxUnits) { currentUnits += weight; result += char; }
+        else break;
       }
       return result;
     };
 
     const getFormattedTimestamp = () => {
       const now = new Date();
-      const yy = String(now.getFullYear()).slice(-2);
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
-      const dd = String(now.getDate()).padStart(2, '0');
-      const hh = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      return `${yy}'${mm}${dd}-${hh}${min}${ss}`;
+      return `${String(now.getFullYear()).slice(-2)}'${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
     };
 
     const AvatarIcon = ({ color, size = 64 }) => (
@@ -245,18 +161,14 @@
       const [editingStakeholder, setEditingStakeholder] = useState(null);
       const [errorMsg, setErrorMsg] = useState('');
       const [showWatermark, setShowWatermark] = useState(false);
-      
-      const [draggedId, setDraggedId] = useState(null); 
-      const [isLiveDragging, setIsLiveDragging] = useState(null); 
-      const [hoveredId, setHoveredId] = useState(null); 
-      
+      const [draggedId, setDraggedId] = useState(null);
+      const [isLiveDragging, setIsLiveDragging] = useState(null);
+      const [hoveredId, setHoveredId] = useState(null);
       const [isDownloading, setIsDownloading] = useState(false);
       const [downloadError, setDownloadError] = useState('');
-      const [libsReady, setLibsReady] = useState(false);
-      
+      const [libsReady, setLibsReady] = useState(true);
       const [mapWidth, setMapWidth] = useState(800);
       const [isInstructionsOpen, setIsInstructionsOpen] = useState(false);
-      const [isInAppBrowser, setIsInAppBrowser] = useState(false);
       const [touchDraggingId, setTouchDraggingId] = useState(null);
       const [touchPos, setTouchPos] = useState({ x: 0, y: 0 });
 
@@ -271,63 +183,12 @@
       const meAvatarBorderClass = isMobileUI ? "border-[4px] ring-4" : "border-[6px] ring-8";
 
       useEffect(() => {
-        const handleContextMenu = (e) => e.preventDefault();
-        const handleKeyDown = (e) => {
-          if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85) || (e.ctrlKey && e.keyCode === 83)) {
-            e.preventDefault();
-            return false;
-          }
-        };
-        document.addEventListener('contextmenu', handleContextMenu);
-        document.addEventListener('keydown', handleKeyDown);
-        return () => {
-          document.removeEventListener('contextmenu', handleContextMenu);
-          document.removeEventListener('keydown', handleKeyDown);
-        };
-      }, []);
-
-      useEffect(() => {
-        const handleBeforeUnload = (e) => {
-          if (stakeholders.length > 0 || meData.name || meData.title) {
-            e.preventDefault();
-            e.returnValue = '確定要離開嗎？';
-            return e.returnValue;
-          }
-        };
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-      }, [stakeholders, meData]);
-
-      useEffect(() => {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        if (ua.indexOf("Line") > -1 || ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1 || ua.indexOf("Instagram") > -1 || ua.indexOf("MicroMessenger") > -1) {
-          setIsInAppBrowser(true);
-        }
         if (!mapRef.current) return;
         const observer = new ResizeObserver((entries) => {
           for (let entry of entries) { setMapWidth(entry.contentRect.width); }
         });
         observer.observe(mapRef.current);
         return () => observer.disconnect();
-      }, []);
-
-      useEffect(() => {
-        const loadScript = (url, checkGlobal) => {
-          return new Promise((resolve) => {
-            if (window[checkGlobal]) { resolve(true); return; }
-            const script = document.createElement('script');
-            script.src = url; script.async = true;
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.head.appendChild(script);
-          });
-        };
-        const initLibs = async () => {
-          const h2c = await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas');
-          const jspdf = await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf');
-          if (h2c && jspdf) setLibsReady(true); else setDownloadError('PDF 組件載入中或連線異常。');
-        };
-        initLibs();
       }, []);
 
       const getQuadrantKey = (x, y) => {
@@ -342,111 +203,69 @@
         if (x === null || y === null) return null;
         const qKey = getQuadrantKey(x, y);
         const qStrategy = qKey ? QUADRANT_STRATEGIES[qKey] : null;
-
         const rawDistance = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
         const normalizedDistance = Math.min(100, Math.round((rawDistance / 50) * 100));
 
-        let tierName = '';
-        let tierColor = '';
-        let tierInfluence = '';
-
+        let tierName = '', tierColor = '', tierInfluence = '';
         if (normalizedDistance <= 50) {
-          tierName = '核心 (≤50%)';
-          tierColor = 'text-red-700 bg-red-100 border-red-200';
-          tierInfluence = '緊密互動・決策樞紐';
+          tierName = '核心 (≤50%)'; tierColor = 'text-red-700 bg-red-100 border-red-200'; tierInfluence = '緊密互動・決策樞紐';
         } else if (normalizedDistance <= 75) {
-          tierName = '中度 (51%~75%)';
-          tierColor = 'text-amber-700 bg-amber-100 border-amber-200';
-          tierInfluence = '定期推進・關鍵配合';
+          tierName = '中度 (51%~75%)'; tierColor = 'text-amber-700 bg-amber-100 border-amber-200'; tierInfluence = '定期推進・關鍵配合';
         } else if (normalizedDistance <= 90) {
-          tierName = '周邊 (76%~90%)';
-          tierColor = 'text-blue-700 bg-blue-100 border-blue-200';
-          tierInfluence = '常態通報・定期周知';
+          tierName = '周邊 (76%~90%)'; tierColor = 'text-blue-700 bg-blue-100 border-blue-200'; tierInfluence = '常態通報・定期周知';
         } else {
-          tierName = '外圍 (>90%)';
-          tierColor = 'text-slate-600 bg-slate-100 border-slate-200';
-          tierInfluence = '低度接觸・按需告知';
+          tierName = '外圍 (>90%)'; tierColor = 'text-slate-600 bg-slate-100 border-slate-200'; tierInfluence = '低度接觸・按需告知';
         }
-
-        return {
-          quadrantKey: qKey,
-          quadrantName: qStrategy?.quadrantName || '未定',
-          directionDesc: qStrategy?.directionDesc || '未定',
-          distancePercent: normalizedDistance,
-          tierName,
-          tierColor,
-          tierInfluence
-        };
+        return { quadrantKey: qKey, quadrantName: qStrategy?.quadrantName || '未定', directionDesc: qStrategy?.directionDesc || '未定', distancePercent: normalizedDistance, tierName, tierColor, tierInfluence };
       };
 
       const handleMeInputChange = (e) => {
         const { name, value } = e.target;
-        let limit = 20; let weight = 2.0;
-        if (name === 'name') weight = 3.33; else if (name === 'remarks') limit = 200;
-        setMeData(prev => ({ ...prev, [name]: truncateByWeight(value, limit, weight) }));
+        setMeData(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
       };
 
       const handleInputChange = (e) => {
         const { name, value } = e.target;
         if (errorMsg) setErrorMsg('');
-        let limit = 20; let weight = 2.0;
-        if (name === 'name') weight = 3.33; else if (name === 'remarks') limit = 200;
-        setFormData(prev => ({ ...prev, [name]: truncateByWeight(value, limit, weight) }));
+        setFormData(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
       };
 
       const handleEditChange = (e) => {
         const { name, value } = e.target;
         if (errorMsg) setErrorMsg('');
-        let limit = 20; let weight = 2.0;
-        if (name === 'name') weight = 3.33; else if (name === 'remarks') limit = 200;
-        setEditingStakeholder(prev => ({ ...prev, [name]: truncateByWeight(value, limit, weight) }));
+        setEditingStakeholder(prev => ({ ...prev, [name]: truncateByWeight(value, name === 'name' ? 20 : 200, name === 'name' ? 3.33 : 2.0) }));
       };
 
       const checkIsDuplicate = (name, title, idToExclude = null) => {
-        const n = name.trim(); const t = title.trim();
+        const n = name.trim(), t = title.trim();
         if (n === meData.name.trim() && t === meData.title.trim()) return true;
         return stakeholders.some(s => s.id !== idToExclude && s.name.trim() === n && s.title.trim() === t);
       };
 
       const addStakeholder = (e) => {
         e.preventDefault();
-        const newName = formData.name.trim(); const newTitle = formData.title.trim();
+        const newName = formData.name.trim(), newTitle = formData.title.trim();
         if (!newName) return;
-        if (checkIsDuplicate(newName, newTitle)) {
-          setErrorMsg('姓名與職稱的組合不能重複（包含「我」或其他關係人）'); return;
-        }
+        if (checkIsDuplicate(newName, newTitle)) { setErrorMsg('姓名與職稱組合不能重複'); return; }
         if (stakeholders.length >= MAX_STAKEHOLDERS) return;
 
         const usedIndices = stakeholders.map(s => s.themeIndex);
         const nextThemeIndex = [0, 1, 2, 3, 4, 5].find(idx => !usedIndices.includes(idx)) ?? (stakeholders.length % STAKEHOLDER_THEMES.length);
 
-        setStakeholders(prev => [...prev, {
-          ...formData, name: newName, title: newTitle, id: Date.now().toString(), x: null, y: null, isPlaced: false,
-          themeIndex: nextThemeIndex
-        }]);
+        setStakeholders(prev => [...prev, { ...formData, name: newName, title: newTitle, id: Date.now().toString(), x: null, y: null, isPlaced: false, themeIndex: nextThemeIndex }]);
         setFormData({ name: '', title: '', remarks: '' });
         setErrorMsg('');
       };
 
       const updateStakeholder = (e) => {
         e.preventDefault();
-        const updatedName = editingStakeholder.name.trim();
-        const updatedTitle = editingStakeholder.title.trim();
-        if (checkIsDuplicate(updatedName, updatedTitle, editingStakeholder.id)) {
-          setErrorMsg('姓名與職稱的組合不能重複（包含「我」或其他關係人）'); return;
-        }
+        const updatedName = editingStakeholder.name.trim(), updatedTitle = editingStakeholder.title.trim();
+        if (checkIsDuplicate(updatedName, updatedTitle, editingStakeholder.id)) { setErrorMsg('姓名與職稱組合不能重複'); return; }
         setStakeholders(prev => prev.map(s => s.id === editingStakeholder.id ? { ...editingStakeholder, name: updatedName, title: updatedTitle } : s));
         setEditingStakeholder(null); setErrorMsg('');
       };
 
       const removeStakeholder = (id) => setStakeholders(prev => prev.filter(s => s.id !== id));
-
-      const handleMouseEnter = (id) => {
-        if (draggedId || isLiveDragging || touchDraggingId || isDownloading) return;
-        setHoveredId(id);
-      };
-
-      const handleMouseLeave = () => setHoveredId(null);
 
       const handleLiveDragStart = (e, id) => {
         if (e.button !== 0) return; e.preventDefault(); e.stopPropagation();
@@ -457,15 +276,9 @@
         const handleGlobalMouseMove = (e) => {
           if (!isLiveDragging || !mapRef.current) return;
           const rect = mapRef.current.getBoundingClientRect();
-          if (rect.width === 0 || rect.height === 0) return;
-
-          let x = ((e.clientX - rect.left) / rect.width) * 100;
-          let y = ((e.clientY - rect.top) / rect.height) * 100;
-          
-          if (!isFinite(x) || !isFinite(y)) return;
-          x = Math.max(5, Math.min(95, x));
-          y = Math.max(5, Math.min(95, y));
-          
+          if (rect.width === 0) return;
+          let x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+          let y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
           setStakeholders(prev => prev.map(s => s.id === isLiveDragging ? { ...s, x, y, isPlaced: true } : s));
         };
         const handleGlobalMouseUp = () => { if (isLiveDragging) setIsLiveDragging(null); };
@@ -479,59 +292,23 @@
         };
       }, [isLiveDragging]);
 
-      const handleDragStartFromList = (e, id) => { setHoveredId(null); setDraggedId(id); e.dataTransfer.setData('text/plain', id); };
-
       const handleDropOnMap = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         const id = e.dataTransfer.getData('text/plain') || draggedId;
         if (!id || !mapRef.current) return;
         const rect = mapRef.current.getBoundingClientRect();
         if (rect.width === 0) return;
-
-        let x = ((e.clientX - rect.left) / rect.width) * 100;
-        let y = ((e.clientY - rect.top) / rect.height) * 100;
-        
-        if (!isFinite(x) || !isFinite(y)) return;
-        x = Math.max(5, Math.min(95, x));
-        y = Math.max(5, Math.min(95, y));
-        
+        let x = Math.max(5, Math.min(95, ((e.clientX - rect.left) / rect.width) * 100));
+        let y = Math.max(5, Math.min(95, ((e.clientY - rect.top) / rect.height) * 100));
         setStakeholders(prev => prev.map(s => s.id === id ? { ...s, x, y, isPlaced: true } : s));
         setDraggedId(null);
       };
 
-      const handleTouchStart = (e, id) => {
-        if (isDownloading) return; setTouchDraggingId(id);
-        const touch = e.touches[0]; setTouchPos({ x: touch.clientX, y: touch.clientY });
-      };
-
-      const handleTouchMove = (e) => {
-        if (!touchDraggingId || !mapRef.current) return;
-        const touch = e.touches[0];
-        const rect = mapRef.current.getBoundingClientRect();
-        if (rect.width === 0) return;
-
-        let x = ((touch.clientX - rect.left) / rect.width) * 100;
-        let y = ((touch.clientY - rect.top) / rect.height) * 100;
-        
-        if (isFinite(x) && isFinite(y)) {
-          x = Math.max(5, Math.min(95, x));
-          y = Math.max(5, Math.min(95, y));
-          setStakeholders(prev => prev.map(s => s.id === touchDraggingId ? { ...s, x, y, isPlaced: true } : s));
-        }
-        if (e.cancelable) e.preventDefault();
-      };
-
-      const handleTouchEnd = () => setTouchDraggingId(null);
-
       const renderDomTextToCanvas = async (htmlContent, widthPx = 900) => {
         const container = document.createElement('div');
-        container.style.width = `${widthPx}px`;
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.top = '-9999px';
-        container.style.backgroundColor = '#ffffff';
-        container.style.fontFamily = 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", sans-serif';
-        container.innerHTML = htmlContent;
+        container.style.width = `${widthPx}px`; container.style.position = 'absolute';
+        container.style.left = '-9999px'; container.style.top = '-9999px';
+        container.style.backgroundColor = '#ffffff'; container.innerHTML = htmlContent;
         document.body.appendChild(container);
         const canvas = await window.html2canvas(container, { scale: 2.5, backgroundColor: '#ffffff', logging: false });
         document.body.removeChild(container);
@@ -540,46 +317,24 @@
 
       const downloadPdfReport = async () => {
         if (!mapRef.current || !window.html2canvas || !window.jspdf) return;
-        setIsDownloading(true);
-        setDownloadError('');
+        setIsDownloading(true); setDownloadError('');
         try {
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-          const pageWidth = 210;
-          const pageHeight = 297;
-          const margin = 10;
-          const contentWidth = pageWidth - margin * 2;
+          const pageWidth = 210, pageHeight = 297, margin = 10, contentWidth = pageWidth - margin * 2;
 
-          const headerHtml = `
-            <div style="padding: 6px 0 10px 0; border-bottom: 2px solid #e2e8f0;">
-              <div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">
-                利害關係人・相對關係圖與溝通行動對策報告
-              </div>
-              <div style="font-size: 13px; font-weight: 600; color: #64748b;">
-                分析主體：${meData.name || '未填寫'} ${meData.title ? `(${meData.title})` : ''} ｜ 產生時間：${getFormattedTimestamp()}
-              </div>
-            </div>
-          `;
+          const headerHtml = `<div style="padding: 6px 0 10px 0; border-bottom: 2px solid #e2e8f0;"><div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-bottom: 6px;">利害關係人・相對關係圖與溝通行動對策報告</div><div style="font-size: 13px; font-weight: 600; color: #64748b;">分析主體：${meData.name || '未填寫'} ${meData.title ? `(${meData.title})` : ''} ｜ 產生時間：${getFormattedTimestamp()}</div></div>`;
           const reportHeaderCanvas = await renderDomTextToCanvas(headerHtml, 1000);
           const reportHeaderHeightInMm = (reportHeaderCanvas.height * contentWidth) / reportHeaderCanvas.width;
           const reportHeaderImgData = reportHeaderCanvas.toDataURL('image/jpeg', 0.95);
 
-          const mapCanvas = await window.html2canvas(mapRef.current, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            onclone: (clonedDoc) => {
-              clonedDoc.querySelectorAll('.download-ignore').forEach(el => el.style.display = 'none');
-            }
-          });
+          const mapCanvas = await window.html2canvas(mapRef.current, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false, onclone: (doc) => { doc.querySelectorAll('.download-ignore').forEach(el => el.style.display = 'none'); } });
           const mapHeightInMm = (mapCanvas.height * contentWidth) / mapCanvas.width;
           const mapImgData = mapCanvas.toDataURL('image/jpeg', 0.95);
 
           let currentY = margin;
           pdf.addImage(reportHeaderImgData, 'JPEG', margin, currentY, contentWidth, reportHeaderHeightInMm);
           currentY += reportHeaderHeightInMm + 5;
-
           pdf.addImage(mapImgData, 'JPEG', margin, currentY, contentWidth, mapHeightInMm);
           currentY += mapHeightInMm + 8;
 
@@ -588,27 +343,14 @@
             const tableHeaderEl = tableContainer.querySelector('thead');
             const rows = tableContainer.querySelectorAll('tbody tr');
 
-            const tableTitleHtml = `
-              <div style="padding: 6px 0 6px 0;">
-                <div style="font-size: 18px; font-weight: 900; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                  <span style="color: #2563eb;">■</span> 利害關係人・溝通行動對策總表
-                </div>
-              </div>
-            `;
+            const tableTitleHtml = `<div style="padding: 6px 0 6px 0;"><div style="font-size: 18px; font-weight: 900; color: #1e293b;"><span style="color: #2563eb;">■</span> 利害關係人・溝通行動對策總表</div></div>`;
             const tableTitleCanvas = await renderDomTextToCanvas(tableTitleHtml, 1000);
             const tableTitleHeightInMm = (tableTitleCanvas.height * contentWidth) / tableTitleCanvas.width;
             const tableTitleImgData = tableTitleCanvas.toDataURL('image/jpeg', 0.95);
 
-            let theadCanvas = null;
-            let theadHeightInMm = 0;
-            let theadImgData = null;
+            let theadCanvas = null, theadHeightInMm = 0, theadImgData = null;
             if (tableHeaderEl) {
-              theadCanvas = await window.html2canvas(tableHeaderEl, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#f8fafc',
-                logging: false
-              });
+              theadCanvas = await window.html2canvas(tableHeaderEl, { scale: 2, useCORS: true, backgroundColor: '#f8fafc', logging: false });
               theadHeightInMm = (theadCanvas.height * contentWidth) / theadCanvas.width;
               theadImgData = theadCanvas.toDataURL('image/jpeg', 0.95);
             }
@@ -620,172 +362,87 @@
             }
 
             if (currentY + tableTitleHeightInMm + theadHeightInMm + firstRowHeightInMm > pageHeight - margin) {
-              pdf.addPage();
-              currentY = margin;
+              pdf.addPage(); currentY = margin;
             }
 
             pdf.addImage(tableTitleImgData, 'JPEG', margin, currentY, contentWidth, tableTitleHeightInMm);
             currentY += tableTitleHeightInMm + 2;
-
-            if (theadImgData) {
-              pdf.addImage(theadImgData, 'JPEG', margin, currentY, contentWidth, theadHeightInMm);
-              currentY += theadHeightInMm;
-            }
+            if (theadImgData) { pdf.addImage(theadImgData, 'JPEG', margin, currentY, contentWidth, theadHeightInMm); currentY += theadHeightInMm; }
 
             for (let i = 0; i < rows.length; i++) {
-              const rowEl = rows[i];
-              const rowCanvas = await window.html2canvas(rowEl, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false
-              });
+              const rowCanvas = await window.html2canvas(rows[i], { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
               const rowHeightInMm = (rowCanvas.height * contentWidth) / rowCanvas.width;
               const rowImgData = rowCanvas.toDataURL('image/jpeg', 0.95);
 
               if (currentY + rowHeightInMm > pageHeight - margin) {
-                pdf.addPage();
-                currentY = margin;
-
+                pdf.addPage(); currentY = margin;
                 pdf.addImage(tableTitleImgData, 'JPEG', margin, currentY, contentWidth, tableTitleHeightInMm);
                 currentY += tableTitleHeightInMm + 2;
-
-                if (theadImgData) {
-                  pdf.addImage(theadImgData, 'JPEG', margin, currentY, contentWidth, theadHeightInMm);
-                  currentY += theadHeightInMm;
-                }
+                if (theadImgData) { pdf.addImage(theadImgData, 'JPEG', margin, currentY, contentWidth, theadHeightInMm); currentY += theadHeightInMm; }
               }
-
               pdf.addImage(rowImgData, 'JPEG', margin, currentY, contentWidth, rowHeightInMm);
               currentY += rowHeightInMm;
             }
           }
-
-          const timeStampStr = getFormattedTimestamp();
-          pdf.save(`利害關係人溝通行動對策報告_${timeStampStr}.pdf`);
+          pdf.save(`利害關係人溝通行動對策報告_${getFormattedTimestamp()}.pdf`);
         } catch (e) {
-          console.error(e);
-          setDownloadError('PDF 匯出失敗，請使用 Chrome 或 Safari 開啟。');
-        } finally {
-          setIsDownloading(false);
-        }
-      };
-
-      const VerticalText = ({ text }) => (
-        <div className="flex flex-col items-center justify-center space-y-1">
-          {text.split('').map((char, index) => <span key={index} className="leading-none text-center font-bold text-slate-500">{char}</span>)}
-        </div>
-      );
-
-      const renderDisplayName = (name) => truncateByWeight(name, 10, 1.66);
-      const renderDisplayTitle = (title) => {
-        if (!title) return null;
-        const truncated = truncateByWeight(title, 10, 1.66);
-        return truncated.length <= 5 ? truncated : <span className="flex flex-col items-center leading-[1.1]"><span>{truncated.substring(0, 5)}</span><span>{truncated.substring(5)}</span></span>;
+          setDownloadError('PDF 匯出失敗，請使用外開瀏覽器。');
+        } finally { setIsDownloading(false); }
       };
 
       const placedStakeholders = stakeholders.filter(s => s.isPlaced);
-
-      const quadrantCounterMap = {};
-      const stakeholderStrategyMap = {};
+      const quadrantCounterMap = {}, stakeholderStrategyMap = {};
       placedStakeholders.forEach(s => {
         const qKey = getQuadrantKey(s.x, s.y);
         if (qKey) {
-          const occurrenceIndex = quadrantCounterMap[qKey] || 0;
-          quadrantCounterMap[qKey] = occurrenceIndex + 1;
-          stakeholderStrategyMap[s.id] = getQuadrantStrategyData(qKey, occurrenceIndex);
+          const idx = quadrantCounterMap[qKey] || 0;
+          quadrantCounterMap[qKey] = idx + 1;
+          stakeholderStrategyMap[s.id] = getQuadrantStrategyData(qKey, idx);
         }
       });
 
       return (
         <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans text-slate-900 select-none">
-          {isInAppBrowser && (
-            <div className="fixed inset-0 z-[500] bg-blue-900/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center text-white animate-in fade-in duration-500">
-              <div className="bg-white/10 p-6 rounded-3xl border border-white/20 mb-8 max-w-sm">
-                <ExternalLink size={64} className="mx-auto mb-6 text-blue-300" />
-                <h2 className="text-2xl font-bold mb-4">請用外部瀏覽器開啟</h2>
-                <p className="text-blue-100 leading-relaxed text-sm">偵測到內建瀏覽器環境，這會導致拖曳與下載功能受限。</p>
-                <div className="mt-8 space-y-4">
-                  <div className="flex items-center gap-3 text-left bg-white/20 p-4 rounded-2xl"><span className="bg-blue-500 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">1</span><span className="text-sm">點擊畫面上或下方的「...」</span></div>
-                  <div className="flex items-center gap-3 text-left bg-white/20 p-4 rounded-2xl"><span className="bg-blue-500 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs">2</span><span className="text-sm">選擇「在瀏覽器開啟」</span></div>
-                </div>
-              </div>
-              <button onClick={() => setIsInAppBrowser(false)} className="px-8 py-3 bg-white text-blue-900 rounded-full font-bold shadow-xl">繼續使用</button>
-            </div>
-          )}
-
           <div className="max-w-7xl mx-auto">
             <header className="mb-6 border-b border-slate-200 pb-4 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-baseline gap-3 flex-wrap">
-                  <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2"><Users className="text-blue-600" /> 利害關係人-相對關係圖</h1>
-                  <span className="text-[10px] text-slate-400 font-medium tracking-tight uppercase">26'0905-1815</span>
-                </div>
-                
-                <div className="mt-4 flex flex-wrap gap-3 items-center">
-                  <button onClick={() => setIsInstructionsOpen(!isInstructionsOpen)} className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-blue-50 border border-slate-200 rounded-xl shadow-sm transition-all text-sm font-bold text-slate-700">
-                    <Info size={16} className="text-blue-600" /><span>使用說明</span>
-                    {isInstructionsOpen ? <ChevronUp size={16} className="text-slate-400 ml-auto" /> : <ChevronDown size={16} className="text-slate-400 ml-auto" />}
-                  </button>
-                  
-                  <button onClick={() => setShowWatermark(!showWatermark)} className={`flex items-center gap-2 px-4 py-2 border rounded-xl shadow-sm transition-all text-sm font-bold ${showWatermark ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
-                    {showWatermark ? <Eye size={16} /> : <EyeOff size={16} />}
-                    <span>策略提示：{showWatermark ? '顯示中' : '隱藏中'}</span>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800 flex items-center gap-2">利害關係人-相對關係圖</h1>
+                <div className="mt-4 flex gap-3">
+                  <button onClick={() => setShowWatermark(!showWatermark)} className={`px-4 py-2 border rounded-xl text-sm font-bold ${showWatermark ? 'bg-blue-600 text-white' : 'bg-white text-slate-600'}`}>
+                    策略提示：{showWatermark ? '顯示' : '隱藏'}
                   </button>
                 </div>
               </div>
-
-              <div className="relative pt-2">
-                <button 
-                  onClick={downloadPdfReport} 
-                  disabled={isDownloading || !libsReady || placedStakeholders.length === 0} 
-                  className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-md transition-all ${(isDownloading || !libsReady || placedStakeholders.length === 0) ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'}`}
-                >
-                  {isDownloading ? <Loader2 className="animate-spin" size={18} /> : !libsReady ? <Loader2 className="animate-spin" size={18} /> : <FileText size={18} />}
-                  <span>匯出 PDF 報告 (含對策表)</span>
-                </button>
-                {downloadError && <div className="absolute top-full right-0 mt-2 text-xs text-red-500 font-bold bg-white p-2 rounded-lg border border-red-200 shadow-sm z-[200]">{downloadError}</div>}
-              </div>
+              <button onClick={downloadPdfReport} disabled={isDownloading || placedStakeholders.length === 0} className={`px-6 py-2.5 rounded-xl font-bold text-white ${placedStakeholders.length === 0 ? 'bg-slate-300' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                {isDownloading ? '處理中...' : '匯出 PDF 報告 (含對策表)'}
+              </button>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
               <div className="lg:col-span-1 space-y-4">
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200 ring-1 ring-blue-50">
-                  <h2 className="text-base font-bold mb-3 text-blue-800 flex items-center gap-2"><UserCircle size={18} className="text-blue-600" /><span>「我」的資訊</span></h2>
-                  <div className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-bold" placeholder="我的姓名 *" />
-                      <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 font-medium" placeholder="我的職稱" />
-                    </div>
-                    <textarea name="remarks" value={meData.remarks} onChange={handleMeInputChange} rows="1" className="w-full px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="分析目標 / 備註" />
-                  </div>
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-blue-200">
+                  <h2 className="text-base font-bold mb-3 text-blue-800">「我」的資訊</h2>
+                  <input type="text" name="name" value={meData.name} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs mb-2 font-bold" placeholder="我的姓名 *" />
+                  <input type="text" name="title" value={meData.title} onChange={handleMeInputChange} className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg text-xs" placeholder="我的職稱" />
                 </div>
 
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                  <h2 className="text-base font-bold mb-3 text-slate-700 flex flex-col"><span>1. 新增利害關係人</span><span className="text-[10px] font-normal text-slate-400 mt-0.5">（最少 1 位，最多 6 位）</span></h2>
+                  <h2 className="text-base font-bold mb-3 text-slate-700">1. 新增利害關係人</h2>
                   <form onSubmit={addStakeholder} className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input type="text" name="name" value={formData.name} onChange={handleInputChange} className={`w-full px-3 py-2 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500`} placeholder="姓名 *" required />
-                      <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500" placeholder="職稱" />
-                    </div>
-                    <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows="1" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] outline-none resize-none focus:ring-2 focus:ring-blue-500" placeholder="備註說明" />
-                    {errorMsg && <div className="text-red-500 text-[10px] font-bold px-1 flex flex-col gap-0.5"><div className="flex items-center gap-1"><AlertCircle size={10} /> 錯誤提示</div><div className="leading-tight">{errorMsg}</div></div>}
-                    <button type="submit" disabled={stakeholders.length >= MAX_STAKEHOLDERS || !meData.name.trim()} className="w-full py-2 bg-slate-800 text-white rounded-lg font-bold text-xs shadow-md hover:bg-black disabled:bg-slate-100 disabled:text-slate-400 flex items-center justify-center gap-1 transition-all">
-                      {!meData.name.trim() ? "請先填寫您的姓名" : <><UserPlus size={14} /> 新增</>}
-                    </button>
+                    <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="姓名 *" required />
+                    <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs" placeholder="職稱" />
+                    {errorMsg && <div className="text-red-500 text-[10px] font-bold">{errorMsg}</div>}
+                    <button type="submit" disabled={stakeholders.length >= MAX_STAKEHOLDERS || !meData.name.trim()} className="w-full py-2 bg-slate-800 text-white rounded-lg text-xs font-bold">新增</button>
                   </form>
                 </div>
 
-                <div onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); if (draggedId) { setStakeholders(prev => prev.map(s => s.id === draggedId ? { ...s, x: null, y: null, isPlaced: false } : s)); setDraggedId(null); }}} className="bg-white/50 p-3 rounded-2xl border-2 border-dashed border-slate-300 min-h-[90px]">
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest flex items-center gap-2"><Move size={12} /> 2. 待分配圖像</h3>
+                <div className="bg-white/50 p-3 rounded-2xl border-2 border-dashed border-slate-300 min-h-[90px]">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase mb-2">2. 待分配圖像</h3>
                   <div className="flex flex-wrap gap-3 justify-center">
                     {stakeholders.filter(s => !s.isPlaced).map(s => (
-                      <div key={s.id} draggable="true" onDragStart={(e) => handleDragStartFromList(e, s.id)} onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex flex-col items-center group cursor-grab active:cursor-grabbing transition-transform active:scale-95 touch-none">
-                        <div className="relative p-0.5 bg-white rounded-full shadow-sm border border-slate-200 group-hover:border-blue-300">
-                          <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#cbd5e1'} size={40} />
-                          <button onClick={() => removeStakeholder(s.id)} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 shadow-sm"><X size={8} /></button>
-                        </div>
-                        <span className="text-[9px] font-bold mt-1 text-slate-600">{renderDisplayName(s.name)}</span>
+                      <div key={s.id} draggable="true" onDragStart={(e) => setDraggedId(s.id)} className="flex flex-col items-center cursor-grab">
+                        <AvatarIcon color={STAKEHOLDER_THEMES[s.themeIndex]?.color || '#3B82F6'} size={40} />
+                        <span className="text-[9px] font-bold mt-1">{s.name}</span>
                       </div>
                     ))}
                   </div>
@@ -793,25 +450,16 @@
               </div>
 
               <div className="lg:col-span-3 space-y-6" ref={printContainerRef}>
-                <div ref={mapRef} onDragOver={(e) => e.preventDefault()} onDrop={handleDropOnMap} className="stakeholder-map-container relative bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden aspect-[4/3] min-h-[650px] w-full flex items-center justify-center">
-                  
+                <div ref={mapRef} onDragOver={(e) => e.preventDefault()} onDrop={handleDropOnMap} className="relative bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden aspect-[4/3] min-h-[650px] w-full flex items-center justify-center">
                   <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 pointer-events-none z-0">
-                     <div className="flex flex-col items-center justify-center border-r border-b border-slate-100/50 bg-blue-50/5">
-                       {showWatermark && <><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">目標對齊</span><span className="text-blue-500 text-2xl font-black opacity-50 tracking-widest uppercase">主動回報</span></>}
-                     </div>
-                     <div className="flex flex-col items-center justify-center border-b border-slate-100/50 bg-amber-50/5">
-                       {showWatermark && <><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">價值共創</span><span className="text-amber-500 text-2xl font-black opacity-50 tracking-widest uppercase">風險管理</span></>}
-                     </div>
-                     <div className="flex flex-col items-center justify-center border-r border-slate-100/50 bg-emerald-50/5">
-                       {showWatermark && <><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">賦能支持</span><span className="text-emerald-500 text-2xl font-black opacity-50 tracking-widest uppercase">情感維繫</span></>}
-                     </div>
-                     <div className="flex flex-col items-center justify-center bg-slate-50/5">
-                       {showWatermark && <><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">穩定預期</span><span className="text-slate-500 text-2xl font-black opacity-50 tracking-widest uppercase">資訊同步</span></>}
-                     </div>
+                    <div className="border-r border-b border-slate-100 bg-blue-50/5 flex flex-col items-center justify-center">{showWatermark && <span className="text-blue-500 font-black opacity-40">目標對齊・主動回報</span>}</div>
+                    <div className="border-b border-slate-100 bg-amber-50/5 flex flex-col items-center justify-center">{showWatermark && <span className="text-amber-500 font-black opacity-40">價值共創・風險管理</span>}</div>
+                    <div className="border-r border-slate-100 bg-emerald-50/5 flex flex-col items-center justify-center">{showWatermark && <span className="text-emerald-500 font-black opacity-40">賦能支持・情感維繫</span>}</div>
+                    <div className="bg-slate-50/5 flex flex-col items-center justify-center">{showWatermark && <span className="text-slate-500 font-black opacity-40">穩定預期・資訊同步</span>}</div>
                   </div>
 
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                    <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/30"></div>
+                    <div className="absolute w-[90%] aspect-square rounded-full bg-red-100/35"></div>
                     <div className="absolute w-[75%] aspect-square rounded-full bg-red-200/40"></div>
                     <div className="absolute w-[50%] aspect-square rounded-full bg-red-300/50"></div>
                   </div>
@@ -819,45 +467,21 @@
                   <div className="absolute top-1/2 left-0 right-0 h-px bg-slate-400/40 z-10"></div>
                   <div className="absolute left-1/2 top-0 bottom-0 w-px bg-slate-400/40 z-10"></div>
 
-                  <div className="absolute top-0 left-0 right-0 flex justify-center pt-0 pointer-events-none text-center font-bold text-blue-700 text-lg z-20"><div className="bg-white border-x border-b border-blue-100 px-10 py-2 rounded-b-2xl shadow-sm">資源｜籌碼 較多</div></div>
-                  <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-0 pointer-events-none text-center font-bold text-emerald-700 text-lg z-20"><div className="bg-white border-x border-t border-emerald-100 px-10 py-2 rounded-t-2xl shadow-sm">資源｜籌碼 較少</div></div>
-                  <div className="absolute left-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-r border-slate-200 p-4 rounded-r-2xl shadow-sm"><VerticalText text="內部關係人" /></div></div>
-                  <div className="absolute right-0 top-0 bottom-0 flex items-center pointer-events-none z-20"><div className="bg-white border-y border-l border-slate-200 p-4 rounded-l-2xl shadow-sm"><VerticalText text="外部關係人" /></div></div>
-
-                  <div className="absolute inset-0 flex items-center justify-center z-[100] me-center-overlay pointer-events-none">
-                    <div className="relative flex flex-col items-center">
-                      <div className={`${meAvatarSizeClass} bg-blue-600 rounded-full ${meAvatarBorderClass} border-white shadow-2xl flex items-center justify-center text-white font-black ring-blue-50/40 transition-all`}>我</div>
-                    </div>
+                  <div className="absolute inset-0 flex items-center justify-center z-[100] pointer-events-none">
+                    <div className="w-20 h-20 bg-blue-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center text-white font-black text-2xl">我</div>
                   </div>
 
                   {placedStakeholders.map(s => {
                     const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
-                    const isHovered = hoveredId === s.id;
-                    const isThisLiveDragging = isLiveDragging === s.id;
                     const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
-
                     return (
-                      <div key={s.id} onMouseEnter={() => handleMouseEnter(s.id)} onMouseLeave={handleMouseLeave} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)', zIndex: isThisLiveDragging ? 300 : (isHovered ? 200 : 50) }} className="absolute group flex flex-col items-center pointer-events-auto transition-shadow">
-                        <div 
-                          onMouseDown={(e) => handleLiveDragStart(e, s.id)}
-                          onDoubleClick={() => { setErrorMsg(''); setEditingStakeholder(s); }}
-                          onTouchStart={(e) => handleTouchStart(e, s.id)} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
-                          className={`relative p-1 bg-white rounded-full shadow-lg border-2 border-transparent group-hover:border-blue-500 z-10 transition-all touch-none ${isThisLiveDragging ? 'cursor-grabbing scale-110 shadow-2xl border-blue-500' : 'cursor-grab hover:scale-105'}`}
-                        >
+                      <div key={s.id} style={{ left: `${s.x}%`, top: `${s.y}%`, transform: 'translate(-50%, -50%)' }} className="absolute flex flex-col items-center cursor-grab active:cursor-grabbing" onMouseDown={(e) => handleLiveDragStart(e, s.id)}>
+                        <div className="p-1 bg-white rounded-full shadow-lg border-2 border-transparent hover:border-blue-500">
                           <AvatarIcon color={theme.color} size={stakeholderAvatarSize} />
-                          <button onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); removeStakeholder(s.id); }} className="download-ignore absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 shadow-md transition-colors"><X size={12} /></button>
                         </div>
-                        
-                        <div className={`${isMobileUI ? 'mt-[-4px]' : 'mt-[-8px]'} text-center pointer-events-none z-20 flex flex-col items-center gap-1`}>
-                          <div className={`bg-white/95 ${isMobileUI ? 'px-3 py-1 min-w-[80px]' : 'px-4 py-1.5 min-w-[100px]'} rounded-full shadow-md border border-slate-100 flex flex-col items-center transition-all`}>
-                            <div className={`font-extrabold text-slate-900 ${isMobileUI ? 'text-[11px]' : 'text-xs'} whitespace-nowrap`}>{renderDisplayName(s.name)}</div>
-                            <div className={`${isMobileUI ? 'text-[9px]' : 'text-[10px]'} text-slate-500 font-bold leading-tight mt-0.5 text-center`}>{renderDisplayTitle(s.title)}</div>
-                          </div>
-                          {qStrategy && (
-                            <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold shadow-xs whitespace-nowrap ${qStrategy.tagColor}`}>
-                              {qStrategy.tag}
-                            </div>
-                          )}
+                        <div className="mt-[-6px] text-center pointer-events-none">
+                          <div className="bg-white/95 px-3 py-1 rounded-full shadow-md border border-slate-100 text-xs font-bold">{s.name}</div>
+                          {qStrategy && <div className={`px-2 py-0.5 rounded-full border text-[9px] font-bold ${qStrategy.tagColor}`}>{qStrategy.tag}</div>}
                         </div>
                       </div>
                     );
@@ -866,136 +490,52 @@
 
                 {placedStakeholders.length > 0 && (
                   <div ref={tableContainerRef} className="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
-                    <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 flex-wrap gap-2">
-                      <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                        <FileText className="text-blue-600" size={20} />
-                        <span>利害關係人・溝通行動對策總表</span>
-                      </h3>
-                      <span className="text-xs font-bold text-slate-400">分析主體：{meData.name || '未填寫'} {meData.title ? `(${meData.title})` : ''}</span>
-                    </div>
-                    
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                            <th className="py-3 px-3 font-bold">對象與職稱</th>
-                            <th className="py-3 px-3 font-bold">位置與向度說明</th>
-                            <th className="py-3 px-3 font-bold">核心態度與策略方針</th>
-                            <th className="py-3 px-3 font-bold">建議頻率與互動管道</th>
-                            <th className="py-3 px-3 font-bold">溝通起手式 / 備註指引</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {placedStakeholders.map(s => {
-                            const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
-                            const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
-                            const posInfo = getDetailedPositionInfo(s.x, s.y);
-
-                            return (
-                              <tr key={s.id} className="hover:bg-blue-50/30 transition-colors">
-                                <td className="py-3.5 px-3 align-top">
-                                  <div className="flex items-center gap-2">
-                                    <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: theme.color }}></span>
-                                    <div>
-                                      <span className="font-extrabold text-slate-800 text-sm block">{s.name}</span>
-                                      <span className="text-slate-400 text-[10px]">{s.title || '無職稱'}</span>
-                                    </div>
-                                  </div>
-                                </td>
-
-                                <td className="py-3.5 px-3 align-top">
-                                  <div className="space-y-1.5">
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                      <span className={`inline-block px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${qStrategy?.tagColor}`}>
-                                        {posInfo?.quadrantName}
-                                      </span>
-                                      <span className={`inline-block px-2 py-0.5 rounded border text-[9px] font-bold ${posInfo?.tierColor}`}>
-                                        {posInfo?.tierName}
-                                      </span>
-                                    </div>
-                                    <div className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
-                                      <Compass size={12} className="text-slate-400 shrink-0" />
-                                      <span>{posInfo?.directionDesc}</span>
-                                    </div>
-                                    <div className="text-[10px] text-slate-400 leading-tight">
-                                      影響位階：{posInfo?.tierInfluence}（距中心 {posInfo?.distancePercent}%）
-                                    </div>
-                                  </div>
-                                </td>
-
-                                <td className="py-3.5 px-3 align-top">
-                                  <div className="font-bold text-slate-700 leading-relaxed">{qStrategy?.attitude}</div>
-                                  <div className="text-blue-600 text-[10px] mt-1 font-semibold">目標：{qStrategy?.focus}</div>
-                                </td>
-
-                                <td className="py-3.5 px-3 align-top">
-                                  <div className="font-medium text-slate-600 leading-relaxed">
-                                    {qStrategy?.channels}
-                                  </div>
-                                </td>
-
-                                <td className="py-3.5 px-3 align-top">
-                                  <div className="text-slate-700 italic bg-slate-50 p-2 rounded-xl border border-slate-100 text-[11px] leading-relaxed">
-                                    {qStrategy?.actionPrompt}
-                                  </div>
-                                  {s.remarks && (
-                                    <div className="text-blue-700 bg-blue-50/60 p-1.5 rounded-lg border border-blue-100 text-[10px] mt-1.5 font-bold">
-                                      自訂備註：{s.remarks}
-                                    </div>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                    <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">利害關係人・溝通行動對策總表</h3>
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 text-slate-500 border-b border-slate-200">
+                          <th className="py-3 px-3 font-bold">對象與職稱</th>
+                          <th className="py-3 px-3 font-bold">位置與向度說明</th>
+                          <th className="py-3 px-3 font-bold">核心態度與策略方針</th>
+                          <th className="py-3 px-3 font-bold">建議頻率與互動管道</th>
+                          <th className="py-3 px-3 font-bold">溝通起手式 / 備註指引</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {placedStakeholders.map(s => {
+                          const qStrategy = stakeholderStrategyMap[s.id] || getQuadrantStrategyData(getQuadrantKey(s.x, s.y), 0);
+                          const theme = STAKEHOLDER_THEMES[s.themeIndex] || STAKEHOLDER_THEMES[0];
+                          const posInfo = getDetailedPositionInfo(s.x, s.y);
+                          return (
+                            <tr key={s.id} className="hover:bg-blue-50/30">
+                              <td className="py-3 px-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.color }}></span>
+                                  <span className="font-extrabold text-slate-800">{s.name}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3">
+                                <span className={`inline-block px-2 py-0.5 rounded-full border text-[10px] font-bold ${qStrategy?.tagColor}`}>{posInfo?.quadrantName}</span>
+                                <div className="text-[10px] text-slate-400 mt-1">位階：{posInfo?.tierName}</div>
+                              </td>
+                              <td className="py-3 px-3 font-bold text-slate-700">{qStrategy?.attitude}</td>
+                              <td className="py-3 px-3 font-medium text-slate-600">{qStrategy?.channels}</td>
+                              <td className="py-3 px-3 italic bg-slate-50 text-slate-700">{qStrategy?.actionPrompt}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
             </div>
           </div>
-
-          {editingStakeholder && (
-            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-md p-4 animate-in fade-in">
-              <div className="bg-white rounded-3xl shadow-2xl w-full p-8 overflow-hidden animate-in zoom-in-95" style={{ maxWidth: '400px' }}>
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center gap-3">
-                    <AvatarIcon color={STAKEHOLDER_THEMES[editingStakeholder.themeIndex]?.color || '#cbd5e1'} size={40} />
-                    <h3 className="text-xl font-bold">修改資訊</h3>
-                  </div>
-                  <button onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="text-slate-400 hover:text-slate-800 transition-colors p-2"><X size={28} /></button>
-                </div>
-                <form onSubmit={updateStakeholder} className="space-y-5">
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">姓名</label><input type="text" name="name" value={editingStakeholder.name} onChange={handleEditChange} className={`w-full px-4 py-3.5 bg-slate-50 border ${errorMsg ? 'border-red-500' : 'border-slate-200'} rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm`} required /></div>
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">職稱</label><input type="text" name="title" value={editingStakeholder.title} onChange={handleEditChange} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm" /></div>
-                  <div className="space-y-1"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">備註說明</label><textarea name="remarks" value={editingStakeholder.remarks} onChange={handleEditChange} rows="3" className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 resize-none font-medium text-sm" /></div>
-                  <div className="flex gap-4 pt-4"><button type="button" onClick={() => { setEditingStakeholder(null); setErrorMsg(''); }} className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold hover:bg-slate-200 text-sm">取消</button><button type="submit" className="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-xl shadow-blue-100 hover:bg-blue-700 text-sm">儲存</button></div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {touchDraggingId && !stakeholders.find(s => s.id === touchDraggingId)?.isPlaced && (
-            <div className="fixed pointer-events-none z-[400] -translate-x-1/2 -translate-y-1/2 opacity-80" style={{ left: touchPos.x, top: touchPos.y }}>
-              <div className="p-1 bg-white rounded-full shadow-2xl border-4 border-blue-500">
-                <AvatarIcon color={STAKEHOLDER_THEMES[stakeholders.find(s => s.id === touchDraggingId)?.themeIndex || 0]?.color || '#cbd5e1'} size={stakeholderAvatarSize} />
-              </div>
-            </div>
-          )}
-
-          <style>{`
-            .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-            .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-            .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-            .touch-none { touch-action: none; }
-          `}</style>
         </div>
       );
     };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
